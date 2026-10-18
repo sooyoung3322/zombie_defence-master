@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goall.zombie_defence.mapper.QuestMapper">
+
+    <select id="selectQuestCountDayList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT
+            IFNULL((SELECT COUNT(*) FROM game_week_result_data WHERE game_result = 'clear' AND user_uuid = #{user_uuid} AND DATE(ins_date) = CURDATE()), 0) AS game_clear_count_day,
+            IFNULL((SELECT COUNT(*) FROM user_login_log WHERE user_uuid = #{user_uuid} AND DATE(ins_date) = CURDATE()), 0) AS user_login_count,
+            IFNULL((SELECT COUNT(*) FROM epic_skill_upgrade_log WHERE user_uuid = #{user_uuid} AND DATE(ins_date) = CURDATE()), 0) AS epic_skill_upgrade_count,
+            IFNULL(SUM(ar_upgrade_count + shotgun_upgrade_count + sniping_upgrade_count), 0) AS unit_upgrade_count,
+            IFNULL(SUM(drawing_count), 0) AS drawing_count,
+            IFNULL(SUM(result_kill_zombie), 0) AS result_kill_zombie,
+            IFNULL(SUM(epic_skill_1_count + epic_skill_2_count), 0) AS epic_skill_count,
+            IFNULL(SUM(use_goods), 0) AS use_goods,
+            IFNULL((SELECT COUNT(*) FROM quest_log WHERE user_uuid = #{user_uuid} AND quest_day_type = 'day' AND DATE(ins_date) = CURDATE()), 0) AS day_quest
+        FROM game_week_result_data
+        WHERE user_uuid = #{user_uuid} AND DATE(ins_date) = CURDATE() AND game_result IN ('clear', 'Failed');
+
+    </select>
+<!--
+
+    IFNULL(SUM(ar_normal + ar_rare + ar_ancient + ar_relics + ar_narrative + ar_legend + ar_mythology + ar_beginning), 0) AS ar_unit_count,
+    IFNULL(SUM(sniping_normal + sniping_rare + sniping_ancient + sniping_relics + sniping_narrative + sniping_legend + sniping_mythology + sniping_beginning), 0) AS sniping_unit_count,
+    IFNULL(SUM(shotgun_normal + shotgun_rare + shotgun_ancient + shotgun_relics + shotgun_narrative + shotgun_legend + shotgun_mythology + shotgun_beginning), 0) AS shotgun_unit_count
+
+-->
+    <select id="selectQuestCountWeekList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT
+            COALESCE((SELECT COUNT(*) FROM game_week_result_data WHERE game_result = 'clear' AND user_uuid = #{user_uuid} AND DATE(ins_date) BETWEEN (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 )) AND (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 ))), 0) AS game_clear_count_week,
+            COALESCE(SUM(result_kill_zombie), 0) AS result_kill_zombie_week,
+            COALESCE(SUM(shotgun_relics + ar_relics + sniping_relics), 0) AS unit_relics_count,
+            COALESCE(SUM(shotgun_narrative + ar_narrative + sniping_narrative), 0) AS unit_narrative_count,
+            COALESCE(SUM(shotgun_legend + ar_legend + sniping_legend), 0) AS unit_legend_count,
+            COALESCE(SUM(shotgun_mythology + ar_mythology + sniping_mythology), 0) AS unit_mythology_count,
+            COALESCE(SUM(shotgun_beginning + ar_beginning + sniping_beginning), 0) AS unit_beginning_count,
+            COALESCE((SELECT COUNT(*) FROM quest_log WHERE user_uuid = #{user_uuid} AND quest_day_type = 'week' AND date_format(ins_date,'%Y-%m-%d') BETWEEN (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 )) AND (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 ))), 0) AS week_quest
+        FROM game_week_result_data
+        WHERE
+            user_uuid = #{user_uuid}
+          AND DATE(ins_date) BETWEEN (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 )) AND (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 ))
+          AND game_result IN ('clear', 'Failed');
+
+    </select>
+
+    <select id="selectQuestList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT quest_eng_name, quest_kor_name, quest_count, quest_day_type, quest_reward, quest_reward_count
+        FROM quest_data
+        <if test="quest_eng_name != null and quest_eng_name != ''">
+        where quest_eng_name = #{quest_eng_name}
+        </if>
+    </select>
+
+    <insert id="insUserQuestLog" parameterType="java.util.HashMap">
+        INSERT INTO quest_log
+        (user_uuid,
+         quest_unique_idx,
+         clear_quest_name,
+         quest_day_type,
+         ins_date,
+         ins_ip,
+         ins_machine)
+        VALUES      (#{user_uuid},
+                     #{quest_unique_idx},
+                     #{clear_quest_name},
+                     #{quest_day_type},
+                     Now(),
+                     #{ins_ip},
+                     #{ins_machine})
+    </insert>
+
+    <select id="selectQuestLogDayCount" resultType="int" parameterType="java.util.HashMap">
+        SELECT COUNT(*) as day_quest
+        FROM quest_log
+        WHERE user_uuid = #{user_uuid}
+          AND quest_day_type = 'day'
+          AND DATE(ins_date) = CURDATE()
+    </select>
+
+    <select id="selectQuestLogWeekCount" resultType="int" parameterType="java.util.HashMap">
+        SELECT COUNT(*) as week_quest
+        FROM quest_log
+        WHERE user_uuid = #{user_uuid}
+          AND quest_day_type = 'week'
+          AND date_format(ins_date,'%Y-%m-%d')
+            BETWEEN
+                (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 ))
+            AND
+                (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 ))
+    </select>
+
+    <select id="selectDayUserQuestClearList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT clear_quest_name, quest_day_type, ins_date
+        FROM quest_log
+        WHERE user_uuid = #{user_uuid}
+          AND quest_day_type = 'day'
+          AND DATE(ins_date) = CURDATE();
+    </select>
+
+    <select id="selectWeekUserQuestClearList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT clear_quest_name, quest_day_type, ins_date
+        FROM quest_log
+        WHERE user_uuid = #{user_uuid}
+          AND quest_day_type = 'week'
+          AND date_format(ins_date,'%Y-%m-%d')
+            BETWEEN
+                (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 ))
+            AND
+                (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 ))
+    </select>
+
+    <select id="selectAdRewardList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT a.*,
+               (SELECT COUNT(*) FROM quest_log b WHERE b.user_uuid = #{user_uuid} AND b.clear_quest_name = a.quest_eng_name AND DATE(ins_date) = CURDATE()) AS clear0or1
+        FROM quest_data a
+        WHERE a.quest_day_type = 'adReward'
+    </select>
+
+    <select id="selectQuestLogAdRewardCount" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT COUNT(*) as adReward_quest
+        FROM quest_log
+        WHERE user_uuid = #{user_uuid}
+          AND clear_quest_name = #{clear_quest_name}
+          AND DATE(ins_date) = CURDATE()
+    </select>
+
+    <select id="countUserDayQuestData" resultType="int" parameterType="java.util.HashMap">
+        SELECT
+            COUNT(*) AS count
+        FROM
+            user_day_quest_data
+        WHERE
+            user_uuid = #{user_uuid}
+          AND DATE(quest_date) = CURDATE();
+    </select>
+
+    <insert id="insUserDayQuestData" parameterType="java.util.HashMap">
+        INSERT INTO user_day_quest_data
+        (user_uuid,
+         day_quest,
+         user_login_count,
+         epic_skill_upgrade_count,
+         unit_upgrade_count,
+         drawing_count,
+         result_kill_zombie,
+         epic_skill_count,
+         use_goods,
+         quest_date,
+         ins_date,
+         ins_ip,
+         ins_machine)
+        VALUES (#{user_uuid},
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                DATE_FORMAT(NOW(), '%Y-%m-%d 00:00:00'),
+                NOW(),
+                '',
+                '');
+    </insert>
+
+    <select id="countUserWeekQuestData" resultType="int" parameterType="java.util.HashMap">
+        SELECT
+            COUNT(*) AS count
+        FROM
+            user_week_quest_data
+        WHERE
+            user_uuid = #{user_uuid}
+          AND CURDATE() BETWEEN quest_week_start_date AND quest_week_end_date;
+    </select>
+
+    <insert id="insUserWeekQuestData" parameterType="java.util.HashMap">
+        INSERT INTO user_week_quest_data
+        (
+            user_uuid,
+            week_quest,
+            game_clear_count_week,
+            result_kill_zombie_week,
+            unit_relics_count,
+            unit_narrative_count,
+            unit_legend_count,
+            unit_mythology_count,
+            unit_beginning_count,
+            quest_week_start_date,
+            quest_week_end_date,
+            ins_date,
+            ins_ip,
+            ins_machine
+        )
+        VALUES
+            (
+                #{user_uuid},
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                (
+                    SELECT Adddate(Curdate(), - Weekday(Curdate()))),
+                (
+                    SELECT Adddate(Curdate(), - Weekday(Curdate()) + 6) + interval '23:59:59' hour_second),
+            now(),
+            #{ins_ip},
+            #{ins_machine}
+            );
+    </insert>
+
+    <select id="userDayQuestData" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM user_day_quest_data
+        WHERE user_uuid = #{user_uuid}
+          AND quest_date = DATE_FORMAT(NOW(), '%Y-%m-%d 00:00:00')
+    </select>
+
+    <select id="userWeekQuestData" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM user_week_quest_data
+        WHERE
+            user_uuid = #{user_uuid}
+          AND CURDATE() BETWEEN quest_week_start_date AND quest_week_end_date
+    </select>
+
+    <update id="uptUserDayQuestData" parameterType="java.util.HashMap">
+        UPDATE user_day_quest_data
+        SET
+            day_quest = day_quest+1
+        WHERE user_uuid = #{user_uuid}
+          AND quest_date = DATE_FORMAT(NOW(), '%Y-%m-%d 00:00:00')
+    </update>
+
+    <update id="uptUserWeekQuestData" parameterType="java.util.HashMap">
+        UPDATE user_week_quest_data
+        SET
+            week_quest = week_quest+1
+        WHERE
+            user_uuid = #{user_uuid}
+          AND CURDATE() BETWEEN quest_week_start_date AND quest_week_end_date
+    </update>
+
+    <select id="countUserQuestLog" resultType="int" parameterType="java.util.HashMap">
+        SELECT COUNT(*)
+        FROM quest_log
+        WHERE user_uuid = #{user_uuid}
+            AND clear_quest_name = #{clear_quest_name}
+        <if test='clear_quest_name == "day_quest"'>
+            AND DATE(ins_date) = CURDATE()
+        </if>
+        <if test='clear_quest_name == "week_quest"'>
+            AND DATE(ins_date) BETWEEN (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 )) AND (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 ))
+        </if>
+
+    </select>
+
+    <update id="uptUserDayQuestIngameData" parameterType="java.util.HashMap">
+        UPDATE user_day_quest_data
+        SET
+            unit_upgrade_count = unit_upgrade_count + #{unit_upgrade_count},
+            drawing_count = drawing_count + #{drawing_count},
+            result_kill_zombie = result_kill_zombie + #{result_kill_zombie},
+            epic_skill_count = epic_skill_count + #{epic_skill_count},
+            use_goods = use_goods + #{use_goods}
+        WHERE user_uuid = #{user_uuid}
+          AND quest_date = DATE_FORMAT(NOW(), '%Y-%m-%d 00:00:00')
+    </update>
+
+    <update id="uptUserWeekQuestIngameData" parameterType="java.util.HashMap">
+        UPDATE user_week_quest_data
+        SET
+            game_clear_count_week = game_clear_count_week + #{game_clear_count_week},
+            result_kill_zombie_week = result_kill_zombie_week + #{result_kill_zombie_week},
+            unit_relics_count = unit_relics_count + #{unit_relics_count},
+            unit_narrative_count = unit_narrative_count + #{unit_narrative_count},
+            unit_legend_count = unit_legend_count + #{unit_legend_count},
+            unit_mythology_count = unit_mythology_count + #{unit_mythology_count},
+            unit_beginning_count = unit_beginning_count +#{unit_beginning_count}
+        WHERE
+            user_uuid = #{user_uuid}
+          AND CURDATE() BETWEEN quest_week_start_date AND quest_week_end_date
+    </update>
+
+    <update id="uptUserDayQuestEpicSkillUpgradeData" parameterType="java.util.HashMap">
+        UPDATE user_day_quest_data
+        SET
+            epic_skill_upgrade_count = epic_skill_upgrade_count + #{epic_skill_upgrade_count}
+        WHERE user_uuid = #{user_uuid}
+          AND quest_date = DATE_FORMAT(NOW(), '%Y-%m-%d 00:00:00')
+    </update>
+
+</mapper>

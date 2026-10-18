@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goall.zombie_defence.mapper.OfflineModeMapper">
+
+    <select id="selectOfflineModeLog" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT a.game_level, a.game_wave, NOW() AS now_date_time, b.ins_date AS start_date
+        FROM game_result_data a LEFT JOIN offline_mode_log b ON a.user_uuid = b.user_uuid
+        WHERE a.user_uuid = #{user_uuid}
+          AND a.game_result = 'Clear'
+        ORDER BY a.game_level DESC, a.game_wave DESC, b.ins_date DESC
+            LIMIT 1;
+    </select>
+
+</mapper>

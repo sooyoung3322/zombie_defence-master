@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goall.zombie_defence.mapper.EpicSkillMapper">
+
+    <select id="selectEpicSkillData" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT a.*
+        FROM epic_skill_data a
+        <where>
+            <if test="epic_skill_idx != null and epic_skill_idx != ''">
+                AND a.epic_skill_idx = #{epic_skill_idx}
+            </if>
+            <if test="epic_skill_grade != null and epic_skill_grade != ''">
+                AND a.epic_skill_grade = #{epic_skill_grade}
+            </if>
+            <if test="epic_skill_level != null and epic_skill_level != ''">
+                AND a.epic_skill_level = #{epic_skill_level}
+            </if>
+        </where>
+    </select>
+
+    <select id="totalUserEpicSkillData" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT a.seq,
+               a.user_uuid,
+               a.user_epic_skill_idx,
+               a.user_epic_skill_grade,
+               a.user_epic_skill_level,
+               b.*
+        FROM   user_epic_skill_data a
+                   LEFT JOIN epic_skill_data b ON a.user_epic_skill_idx = b.epic_skill_idx
+        WHERE user_uuid = #{user_uuid}
+        and use_yn = 'Y'
+    </select>
+
+    <select id="upgradeSelectUserEpicSkill" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT a.seq,
+               a.user_uuid,
+               a.user_epic_skill_idx,
+               a.user_epic_skill_grade,
+               a.user_epic_skill_level,
+               b.epic_skill_name,
+               b.epic_skill_note,
+               b.epic_skill_upgrade_grade1_percent,
+               b.epic_skill_upgrade_grade2_percent,
+               b.epic_skill_upgrade_grade3_percent,
+               b.epic_skill_upgrade_grade4_percent,
+               b.epic_skill_upgrade_grade5_percent,
+               b.epic_skill_upgrade_gold,
+               b.epic_skill_sell_gold
+
+        FROM user_epic_skill_data a
+                 LEFT JOIN epic_skill_data b ON a.user_epic_skill_idx = b.epic_skill_idx AND a.user_epic_skill_grade = b.epic_skill_grade
+        WHERE a.user_uuid = #{user_uuid}
+          AND  a.seq = #{seq}
+          AND a.use_yn = 'Y'
+    </select>
+
+    <insert id="insUserEpicSkillList" parameterType="java.util.HashMap">
+        INSERT INTO user_epic_skill_data
+            (
+             user_uuid,
+             user_epic_skill_unique_idx,
+             user_epic_skill_idx,
+             user_epic_skill_grade,
+             user_epic_skill_level,
+             use_yn,
+             ins_date,
+             upt_date,
+             ins_ip,
+             ins_machine
+             )
+        VALUES
+            <foreach item="item" collection="resultList" separator=",">
+                (
+                #{item.user_uuid},
+                #{item.user_epic_skill_unique_idx},
+                #{item.user_epic_skill_idx},
+                #{item.user_epic_skill_grade},
+                #{item.user_epic_skill_level},
+                'Y',
+                Now(),
+                Now(),
+                #{item.ins_ip},
+                #{item.ins_machine}
+                )
+            </foreach>
+    </insert>
+
+    <insert id="insUserEpicSkill" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="start_seq">
+        INSERT INTO user_epic_skill_data
+            (
+            user_uuid,
+            user_epic_skill_unique_idx,
+            user_epic_skill_idx,
+            user_epic_skill_grade,
+            user_epic_skill_level,
+            use_yn,
+            ins_date,
+            upt_date,
+            ins_ip,
+            ins_machine
+            )
+        VALUES
+                (
+                #{user_uuid},
+                #{user_epic_skill_unique_idx},
+                #{user_epic_skill_idx},
+                #{user_epic_skill_grade},
+                #{user_epic_skill_level},
+                'Y',
+                Now(),
+                Now(),
+                #{ins_ip},
+                #{ins_machine}
+                )
+    </insert>
+
+    <select id="epicSkillDrawSelect" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        <if test="epic_skill_draw_type == 'normal'">
+            SELECT a.*,
+                    (
+                    SELECT sum(epic_skill_draw_type_normal_percentage)
+                    FROM epic_skill_data
+                    WHERE epic_skill_draw_type_normal = 'Y'
+                    AND epic_skill_grade = '1'
+                    )AS normal_grade_1_sum,
+                    (
+                    SELECT sum(epic_skill_draw_type_normal_percentage)
+                    FROM epic_skill_data
+                    WHERE epic_skill_draw_type_normal = 'Y'
+                    AND epic_skill_grade = '2'
+                    )AS normal_grade_2_sum,
+                    (
+                    SELECT sum(epic_skill_draw_type_normal_percentage)
+                    FROM epic_skill_data
+                    WHERE epic_skill_draw_type_normal = 'Y'
+                    AND epic_skill_grade = '3'
+                    )AS normal_grade_3_sum
+            FROM epic_skill_data a
+            WHERE a.epic_skill_draw_type_normal = 'Y'
+        </if>
+        <if test="epic_skill_draw_type == 'advanced'">
+            SELECT a.*,
+                    (
+                    SELECT sum(epic_skill_draw_type_advanced_percentage)
+                    FROM epic_skill_data
+                    WHERE epic_skill_draw_type_advanced = 'Y'
+                    AND epic_skill_grade = '2'
+                    )AS advanced_grade_2_sum,
+                    (
+                    SELECT sum(epic_skill_draw_type_advanced_percentage)
+                    FROM epic_skill_data
+                    WHERE epic_skill_draw_type_advanced = 'Y'
+                    AND epic_skill_grade = '3'
+                    )AS advanced_grade_3_sum,
+                    (
+                    SELECT sum(epic_skill_draw_type_advanced_percentage)
+                    FROM epic_skill_data
+                    WHERE epic_skill_draw_type_advanced = 'Y'
+                    AND epic_skill_grade = '4'
+                    )AS advanced_grade_4_sum
+            FROM epic_skill_data a
+            WHERE a.epic_skill_draw_type_advanced = 'Y'
+        </if>
+        <if test="epic_skill_draw_type == 'confirmation'">
+            SELECT a.*
+            FROM epic_skill_data a
+            WHERE a.epic_skill_draw_type_confirmation = 'Y'
+        </if>
+    </select>
+
+    <update id="uptUserEpicSkillEquip" parameterType="java.util.HashMap">
+        UPDATE user_data
+        SET
+            user_epic_skill_1 = #{user_epic_skill_1},
+            user_epic_skill_2 = #{user_epic_skill_2},
+            user_update_date = NOW()
+        WHERE user_uuid = #{user_uuid}
+    </update>
+
+    <select id="userEpicSkillCount" resultType="int" parameterType="java.util.HashMap">
+        SELECT COUNT(user_uuid) AS user_epic_skill_count
+        FROM user_epic_skill_data
+        WHERE user_uuid = #{user_uuid}
+        AND   use_yn = 'Y'
+    </select>
+
+    <update id="uptUpgradeEpicSkill" parameterType="java.util.HashMap">
+        UPDATE user_epic_skill_data
+        SET
+            user_epic_skill_level = #{user_epic_skill_level},
+            upt_date = NOW(),
+            ins_ip = #{ins_ip},
+            ins_machine = #{ins_machine}
+        WHERE user_uuid = #{user_uuid}
+        AND   seq = #{user_epic_skill_seq}
+    </update>
+
+    <update id="uptUpgradeEpicSkillYn" parameterType="java.util.HashMap">
+        <foreach item="item" collection="seqList" index="index" separator=";" open="" close="">
+            UPDATE user_epic_skill_data
+            SET
+                upt_date = NOW(),
+                ins_ip = #{ins_ip},
+                ins_machine = #{ins_machine},
+                use_yn = 'N',
+                use_yn_n_reason = #{use_yn_n_reason}
+            WHERE user_uuid = #{user_uuid}
+              AND   seq = #{item.epic_skill_seq_list}
+        </foreach>
+    </update>
+
+    <insert id="insUpgradeEpicSkillLog" parameterType="java.util.HashMap">
+        INSERT INTO epic_skill_upgrade_log
+            (
+            use_gold_unique_idx,
+            user_uuid,
+            to_epic_skill_seq,
+            from_epic_skill_seq,
+            use_gold,
+            upgrade_order,
+            upgrade_result,
+            ins_date,
+            ins_ip,
+            ins_machine
+            )
+        VALUES
+            <foreach item="item" collection="upgradeResultList" separator=",">
+                (
+                #{use_gold_unique_idx},
+                #{user_uuid},
+                #{user_epic_skill_seq},
+                #{item.epic_skill_seq_list},
+                #{use_gold},
+                #{item.upgrade_order},
+                #{item.upgrade_result},
+                Now(),
+                #{ins_ip},
+                #{ins_machine}
+                )
+            </foreach>
+    </insert>
+
+    <insert id="insSynthesisEpicSkillLog" parameterType="java.util.HashMap">
+        INSERT INTO epic_skill_synthesis_log
+        (
+        synthesis_unique_idx,
+        user_uuid,
+        to_epic_skill_seq_1,
+        to_epic_skill_seq_2,
+        from_epic_skill_seq,
+        ins_date,
+        ins_ip,
+        ins_machine
+        )
+        VALUES
+        (
+        #{synthesis_unique_idx},
+        #{user_uuid},
+        #{to_epic_skill_seq_1},
+        #{to_epic_skill_seq_2},
+        #{from_epic_skill_seq},
+        Now(),
+        #{ins_ip},
+        #{ins_machine}
+        )
+    </insert>
+
+    <insert id="insSellEpicSkillLog" parameterType="java.util.HashMap">
+        INSERT INTO epic_skill_sell_log
+        (
+         sell_unique_idx,
+         user_uuid,
+         sell_epic_skill_seq,
+         sell_epic_skill_grade,
+         sell_gold,
+         ins_date,
+         ins_ip,
+         ins_machine
+         )
+        VALUES
+        <foreach item="item" collection="sellResultList" separator=",">
+            (
+             #{sell_unique_idx},
+             #{user_uuid},
+             #{item.sell_epic_skill_seq},
+             #{item.sell_epic_skill_grade},
+             #{item.sell_gold},
+              Now(),
+             #{ins_ip},
+             #{ins_machine}
+             )
+        </foreach>
+    </insert>
+
+    <select id="selectNotUserGradeEpicSkill" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT epic_skill_data.*,
+               CASE WHEN user_epic_skill_data.user_epic_skill_idx IS NULL THEN 'N' ELSE 'Y' END AS have_yn
+        FROM epic_skill_data
+                 LEFT JOIN user_epic_skill_data
+                           ON epic_skill_data.epic_skill_idx = user_epic_skill_data.user_epic_skill_idx
+                               AND user_epic_skill_data.user_epic_skill_grade = #{user_epic_skill_grade}
+                               AND user_epic_skill_data.use_yn = 'Y'
+                               AND user_epic_skill_data.user_uuid = #{user_uuid}
+        WHERE epic_skill_data.epic_skill_grade = #{epic_skill_grade}
+          AND (CASE WHEN user_epic_skill_data.user_epic_skill_idx IS NULL THEN 'N' ELSE 'Y' END) = 'N';
+
+    </select>
+
+    <insert id="insSellEpicSkillChangeLog" parameterType="java.util.HashMap">
+        INSERT INTO epic_skill_change_log
+            (change_unique_idx,
+             user_uuid,
+             to_epic_skill_seq,
+             to_epic_skill_idx,
+             from_epic_skill_seq,
+             from_epic_skill_idx,
+             ins_date,
+             ins_ip,
+             ins_machine)
+        VALUES
+            (#{change_unique_idx},
+             #{user_uuid},
+             #{to_epic_skill_seq},
+             #{to_epic_skill_idx},
+             #{from_epic_skill_seq},
+             #{from_epic_skill_idx},
+             Now(),
+             #{ins_ip},
+             #{ins_machine})
+    </insert>
+
+    <select id="buyEpicSkill5Random" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM epic_skill_data
+        WHERE epic_skill_grade = 5
+        ORDER BY RAND()
+            LIMIT 1;
+    </select>
+
+</mapper>

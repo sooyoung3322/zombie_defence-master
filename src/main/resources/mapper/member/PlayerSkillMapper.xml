@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goall.zombie_defence.mapper.PlayerSkillMapper">
+
+    <select id="playerSkillYn" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT COUNT(*) AS player_skill_yn
+        FROM user_player_skill_data
+        WHERE user_uuid = #{user_uuid}
+    </select>
+
+    <insert id="insUserPlayerSkill" parameterType="java.util.HashMap">
+        INSERT INTO user_player_skill_data
+        (user_uuid,
+         user_damage_up_skill_count,
+         user_speed_attack_up_skill_count,
+         user_start_nut_up_skill_count,
+         user_epic_time_down_up_skill_count,
+         user_zombie_max_up_skill_count,
+         user_game_speed_up_skill_count,
+         user_nut_up_skill_count,
+         user_gold_up_skill_count,
+         user_ruby_up_skill_count,
+         user_ar_epic_unit_count,
+         user_sp_epic_unit_count,
+         user_sg_epic_unit_count,
+         ins_date,
+         upt_date,
+         upt_ip,
+         upt_machine)
+        VALUES
+            (#{user_uuid},
+             0,
+             0,
+             0,
+             0,
+             0,
+             0,
+             0,
+             0,
+             0,
+             0,
+             0,
+             0,
+             NOW(),
+             NOW(),
+             #{upt_ip},
+             #{upt_machine})
+    </insert>
+
+    <update id="uptUserPlayerSkill" parameterType="java.util.HashMap">
+           UPDATE user_player_skill_data
+           SET
+            user_damage_up_skill_count = #{user_damage_up_skill_count},
+            user_speed_attack_up_skill_count = #{user_speed_attack_up_skill_count},
+            user_start_nut_up_skill_count = #{user_start_nut_up_skill_count},
+            user_epic_time_down_up_skill_count = #{user_epic_time_down_up_skill_count},
+            user_zombie_max_up_skill_count = #{user_zombie_max_up_skill_count},
+            user_game_speed_up_skill_count = #{user_game_speed_up_skill_count},
+            user_nut_up_skill_count = #{user_nut_up_skill_count},
+            user_gold_up_skill_count = #{user_gold_up_skill_count},
+            user_ruby_up_skill_count = #{user_ruby_up_skill_count},
+            user_ar_epic_unit_count = #{user_ar_epic_unit_count},
+            user_sp_epic_unit_count = #{user_sp_epic_unit_count},
+            user_sg_epic_unit_count = #{user_sg_epic_unit_count},
+            upt_date = NOW(),
+            upt_ip = #{upt_ip},
+            upt_machine = #{upt_machine}
+           WHERE user_uuid = #{user_uuid}
+    </update>
+
+    <select id="userPlayerSkillList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT a.user_damage_up_skill_count,
+               ROUND((a.user_damage_up_skill_count * b.damage_up), 2) AS damage_up,
+               a.user_speed_attack_up_skill_count,
+               ROUND((a.user_speed_attack_up_skill_count * b.speed_attack_up), 2) AS speed_attack_up,
+               a.user_start_nut_up_skill_count,
+               ROUND((a.user_start_nut_up_skill_count * b.start_nut_up), 2) AS start_nut_up,
+               a.user_epic_time_down_up_skill_count,
+               ROUND((a.user_epic_time_down_up_skill_count * b.epic_time_down_up), 2) AS epic_time_down_up,
+               a.user_zombie_max_up_skill_count,
+               ROUND((a.user_zombie_max_up_skill_count * b.zombie_max_up), 2) AS zombie_max_up,
+               a.user_game_speed_up_skill_count,
+               ROUND((a.user_game_speed_up_skill_count * b.game_speed_up), 2) AS game_speed_up,
+               a.user_nut_up_skill_count,
+               ROUND((a.user_nut_up_skill_count * b.nut_up), 2) AS nut_up,
+               a.user_gold_up_skill_count,
+               ROUND((a.user_gold_up_skill_count * b.gold_up), 2) AS gold_up,
+               a.user_ruby_up_skill_count,
+               ROUND((a.user_ruby_up_skill_count * b.ruby_up), 2) AS ruby_up,
+               a.user_ar_epic_unit_count,
+               ROUND((a.user_ar_epic_unit_count * b.ar_epic_unit), 2) AS ar_epic_unit,
+               a.user_sp_epic_unit_count,
+               ROUND((a.user_sp_epic_unit_count * b.sp_epic_unit), 2) AS sp_epic_unit,
+               a.user_sg_epic_unit_count,
+               ROUND((a.user_sg_epic_unit_count * b.sg_epic_unit), 2) AS sg_epic_unit
+        FROM   user_player_skill_data a
+                   JOIN player_skill_data b
+        WHERE user_uuid = #{user_uuid}
+    </select>
+
+    <select id="playerSkillDataList" resultType="java.util.HashMap">
+        SELECT damage_up,
+               damage_up_max,
+               speed_attack_up,
+               speed_attack_up_max,
+               start_nut_up,
+               start_nut_up_max,
+               epic_time_down_up,
+               epic_time_down_up_max,
+               zombie_max_up,
+               zombie_max_up_max,
+               game_speed_up,
+               game_speed_up_max,
+               nut_up,
+               nut_up_max,
+               gold_up,
+               gold_up_max,
+               ruby_up,
+               ruby_up_max,
+               ar_epic_unit,
+               ar_epic_unit_max,
+               sp_epic_unit,
+               sp_epic_unit_max,
+               sg_epic_unit,
+               sg_epic_unit_max
+        FROM   player_skill_data
+    </select>
+
+</mapper>

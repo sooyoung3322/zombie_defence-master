@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goall.zombie_defence.mapper.UnitUpgradeMapper">
+
+    <select id="unitUpgradeData" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT user_level,
+               upgrade_level,
+               need_goods,
+               need_goods_quantity,
+               ar_value,
+               ar_special_option,
+               ar_special_option_note,
+               sg_value,
+               sg_special_option,
+               sg_special_option_note,
+               sp_value,
+               sp_special_option,
+               sp_special_option_note,
+               bonus_player_skill
+        FROM   unit_upgrade_data
+        <where>
+            <if test="upgrade_level != null and upgrade_level != ''">
+                upgrade_level = #{upgrade_level}
+            </if>
+        </where>
+    </select>
+
+    <select id="userUnitUpgradeYn" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT COUNT(*) AS user_unit_upgrade_yn
+        FROM user_unit_upgrade_data
+        WHERE user_uuid = #{user_uuid}
+    </select>
+
+    <insert id="insUserUnitUpgrade" parameterType="java.util.HashMap">
+        INSERT INTO user_unit_upgrade_data
+        (
+         user_uuid,
+         ar_unit_upgrade_level,
+         sg_unit_upgrade_level,
+         sp_unit_upgrade_level,
+         upt_date,
+         ins_date,
+         ins_ip,
+         ins_machine)
+        VALUES
+        (
+         #{user_uuid},
+         '0',
+         '0',
+         '0',
+         Now(),
+         Now(),
+         #{ins_ip},
+         #{ins_machine})
+    </insert>
+
+    <update id="uptUserUnitUpgrade" parameterType="java.util.HashMap">
+        UPDATE user_unit_upgrade_data
+        SET
+        <if test="ar_unit_upgrade_level != null and ar_unit_upgrade_level != ''">
+            ar_unit_upgrade_level = ar_unit_upgrade_level+1,
+        </if>
+        <if test="sg_unit_upgrade_level != null and sg_unit_upgrade_level != ''">
+            sg_unit_upgrade_level = sg_unit_upgrade_level+1,
+        </if>
+        <if test="sp_unit_upgrade_level != null and sp_unit_upgrade_level != ''">
+            sp_unit_upgrade_level = sp_unit_upgrade_level+1,
+        </if>
+            upt_date=NOW()
+        WHERE user_uuid = #{user_uuid}
+    </update>
+
+    <select id="userUnitUpgradeData" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM user_unit_upgrade_data
+        WHERE user_uuid = #{user_uuid}
+    </select>
+
+    <insert id="insUserUnitUpgradeLog" parameterType="java.util.HashMap">
+        INSERT INTO unit_upgrade_log
+        (user_uuid,
+         unit_upgrade_unique_idx,
+         unit_upgrade_type,
+         unit_upgrade_level,
+         unit_upgrade_goods_type,
+         unit_upgrade_goods_quantity,
+         bonus_player_skill,
+         ins_date,
+         ins_ip,
+         ins_machine)
+        VALUES
+            (#{user_uuid},
+             #{unit_upgrade_unique_idx},
+             #{unit_upgrade_type},
+             #{unit_upgrade_level},
+             #{unit_upgrade_goods_type},
+             #{unit_upgrade_goods_quantity},
+             #{bonus_player_skill},
+             Now(),
+             #{ins_ip},
+             #{ins_machine})
+    </insert>
+
+</mapper>

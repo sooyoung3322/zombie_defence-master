@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goall.zombie_defence.mapper.SeasonPackageMapper">
+
+    <select id="selectSeasonPackageList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT
+            spd.package_tier,
+            spd.package_level,
+            spd.package_level_exp,
+            spd.reward_kinds,
+            spd.reward_count,
+            spd.reward_item_idx,
+            spd.reward_item_level,
+            spd.reward_item_grade,
+            COALESCE(uspid.seasion_package_received, 0) as seasion_package_received
+        FROM
+            season_package_data spd
+                LEFT JOIN
+            user_season_package_insert_data uspid ON spd.package_tier = uspid.season_package_tier
+                AND spd.package_level = uspid.season_package_level
+                AND uspid.season_number = #{season_number}
+                AND uspid.user_uuid = #{user_uuid}
+        ORDER BY
+            spd.package_tier,
+            spd.package_level;
+
+    </select>
+
+    <select id="selectSeasonNumberList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM season_number_date_data
+        WHERE season_number = (SELECT MAX(season_number) FROM season_number_date_data);
+    </select>
+
+    <insert id="insUserSeasonPackage" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="result_seq">
+        INSERT INTO user_season_package_exp_data
+        (user_uuid,
+         season_package_exp,
+         season_package_tier,
+         season_number,
+         season_start_date,
+         season_end_date,
+         ins_date,
+         ins_ip,
+         ins_machine)
+        VALUES      (#{user_uuid},
+                     0,
+                     0,
+                     #{season_number},
+                     #{season_start_date},
+                     #{season_end_date},
+                     NOW(),
+                     #{ins_ip},
+                     #{ins_machine})
+    </insert>
+
+    <select id="searchUserSeasonPackage" resultType="int" parameterType="java.util.HashMap">
+        SELECT count(*)
+        FROM user_season_package_exp_data
+        WHERE user_uuid = #{user_uuid}
+        AND season_number = #{season_number}
+    </select>
+
+    <update id="uptUserSeasonPackage" parameterType="java.util.HashMap">
+        UPDATE user_season_package_exp_data
+        SET
+            season_package_exp = LEAST(12000, season_package_exp + #{season_exp})
+        WHERE
+            user_uuid = #{user_uuid}
+        and
+            season_number = #{season_number}
+    </update>
+
+    <select id="selectUserSeasonPackageList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT season_package_exp,
+               season_package_tier,
+               season_number,
+               season_start_date,
+               season_end_date
+        FROM   user_season_package_exp_data
+        WHERE
+            user_uuid = #{user_uuid}
+        AND season_number = #{season_number}
+    </select>
+
+    <insert id="insUserSeasonPackageInsertData" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="result_seq">
+        INSERT INTO user_season_package_insert_data
+        (user_uuid,
+         season_number,
+         season_package_tier,
+         season_package_level,
+         seasion_package_received,
+         ins_ip,
+         ins_date,
+         ins_machine)
+        VALUES      (#{user_uuid},
+                     #{season_number},
+                     #{season_package_tier},
+                     #{season_package_level},
+                     #{seasion_package_received},
+                     #{ins_ip},
+                     Now(),
+                     #{ins_machine})
+    </insert>
+
+    <select id="selectUserSeasonPackageInsertDataCount" resultType="int" parameterType="java.util.HashMap">
+        SELECT COUNT(*)
+        FROM   user_season_package_insert_data
+        WHERE user_uuid = #{user_uuid}
+        AND season_number = #{season_number}
+        AND season_package_tier = #{season_package_tier}
+        AND season_package_level = #{season_package_level}
+    </select>
+
+    <select id="selectSeasonNumberRewardList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM season_package_data
+        WHERE package_tier = #{season_package_tier}
+        and package_level = #{season_package_level}
+    </select>
+
+    <update id="uptUserSeasonPackageTier" parameterType="java.util.HashMap">
+        UPDATE user_season_package_exp_data
+        SET
+            season_package_tier = #{season_package_tier}
+        WHERE
+            user_uuid = #{user_uuid}
+        AND
+            season_number = #{season_number}
+    </update>
+
+    <insert id="insUserSeasonNumberDate" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="result_seq">
+        INSERT INTO season_number_date_data
+        (season_number,
+         season_start_date,
+         season_end_date,
+         season_level_exp,
+         season_start_end,
+         ins_date)
+        VALUES      (#{season_number},
+                     #{season_start_date},
+                     #{season_end_date},
+                     400,
+                     'start',
+                     Now())
+    </insert>
+
+    <update id="uptUserSeasonNumberDate" parameterType="java.util.HashMap">
+        UPDATE season_number_date_data
+        SET
+            season_start_end = 'end'
+        WHERE
+            season_number = #{season_number}
+    </update>
+
+    <select id="isSeasonStartedTrueFalse" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT
+            IF(u.last_login &gt;= s.season_start_date, 'true', 'false') AS is_season_started
+        FROM
+            user_data u
+                JOIN
+            (SELECT
+                 MAX(season_start_date) AS season_start_date
+             FROM
+                 season_number_date_data
+             WHERE
+                 season_start_date &lt;= NOW()) s ON 1=1
+        WHERE
+            u.user_uuid = #{user_uuid}
+    </select>
+
+</mapper>

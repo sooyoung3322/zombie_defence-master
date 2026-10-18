@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goall.zombie_defence.mapper.ProductMapper">
+
+    <select id="selectProductDataList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+
+        SELECT DISTINCT a.*,
+                        CASE
+                            WHEN b.product_eng_name IS NOT NULL THEN 'Y'
+                            ELSE 'N'
+                            END AS first_buy,
+                        count(b.product_eng_name) AS product_buy_count,
+                        product_limit_count
+
+        FROM   product_data a
+                   LEFT JOIN product_sale_log b
+                             ON a.product_eng_name =
+                                b.product_eng_name
+                                 AND b.user_uuid = #{user_uuid}
+
+        GROUP BY a.product_eng_name
+
+    </select>
+
+    <select id="selectProductData" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM   product_data
+        <where>
+            <if test="product_eng_name != null and product_eng_name != ''">
+                product_eng_name = #{product_eng_name}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insProductSaleLog" parameterType="java.util.HashMap">
+        INSERT INTO product_sale_log
+                    (
+                     unique_idx,
+                     user_uuid,
+                     product_eng_name,
+                     ins_data,
+                     ins_ip,
+                     ins_machine
+                     )
+        VALUES      (
+                     #{unique_idx},
+                     #{user_uuid},
+                     #{product_eng_name},
+                     Now(),
+                     #{ins_ip},
+                     #{ins_machine}
+                     )
+    </insert>
+
+    <update id="uptProductSaleCount" parameterType="java.util.HashMap">
+        UPDATE product_data
+        SET
+            product_sale_count=product_sale_count+1
+        WHERE
+            product_eng_name = #{product_eng_name}
+    </update>
+
+    <insert id="insUseCashLog" parameterType="java.util.HashMap">
+        INSERT INTO use_cash_log
+            (user_uuid,
+             user_platform,
+             use_cash_unique_idx,
+             use_cash_product_name,
+             use_cash_quantity,
+             ins_date,
+             ins_ip,
+             ins_machine)
+      VALUES      (#{user_uuid},
+                   #{platform},
+                   #{use_cash_unique_idx},
+                   #{use_cash_product_name},
+                   #{use_cash_quantity},
+                   Now(),
+                   #{ins_ip},
+                   #{ins_machine})
+    </insert>
+
+    <select id="selectProductDataFirstBuyList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT DISTINCT a.*,
+                CASE
+                  WHEN b.product_eng_name IS NOT NULL THEN 'Y'
+                  ELSE 'N'
+                END AS first_buy
+        FROM   product_data a
+               LEFT JOIN product_sale_log b
+                      ON a.product_eng_name =
+                         b.product_eng_name
+                         AND b.user_uuid = #{user_uuid}
+         where a.product_eng_name = #{product_eng_name}
+    </select>
+
+    <insert id="insExpBooster" parameterType="java.util.HashMap">
+        INSERT INTO exp_booster_data
+            (user_uuid,
+             exp_booster_start_date,
+             exp_booster_end_date,
+             exp_booster_buy_count)
+        VALUES      (#{user_uuid},
+                      Now(),
+                      ADDDATE(NOW(), INTERVAL 28 DAY),
+                      1)
+    </insert>
+
+    <update id="uptExpBooster" parameterType="java.util.HashMap">
+        UPDATE exp_booster_data
+        SET
+        exp_booster_start_date=NOW(),
+        exp_booster_end_date=ADDDATE(NOW(), INTERVAL 28 DAY),
+        exp_booster_buy_count=exp_booster_buy_count+1
+        WHERE
+        user_uuid = #{user_uuid}
+    </update>
+
+    <select id="selectExpBooster" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT exp_booster_start_date, exp_booster_end_date
+            FROM exp_booster_data
+            WHERE user_uuid = #{user_uuid}
+    </select>
+
+    <select id="selectExpBoosterYn" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT exp_booster_start_date,
+        exp_booster_end_date,
+        CASE
+        WHEN Now() BETWEEN exp_booster_start_date AND exp_booster_end_date THEN
+        'Y'
+        ELSE 'N'
+        END AS 'booster_yn'
+        FROM   exp_booster_data
+        WHERE  user_uuid = #{user_uuid}
+    </select>
+
+</mapper>

@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goall.zombie_defence.mapper.InGameMapper">
+
+    <insert id="insGameStartLog" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="start_seq">
+        INSERT INTO game_start_data
+            (
+            user_uuid,
+            game_mode,
+            game_level,
+            ins_date,
+            ins_ip,
+            ins_machine
+            )
+        VALUES
+            (
+            #{user_uuid},
+            #{game_mode},
+            #{game_level},
+            NOW(),
+            #{ins_ip},
+            #{ins_machine}
+            )
+    </insert>
+
+    <insert id="insGameResultLog" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="result_seq">
+        INSERT INTO game_result_data
+        (start_seq, unique_idx, user_uuid, game_mode, game_level, game_result, game_play_time, epic_skill_1, epic_skill_1_level, epic_skill_1_count, epic_skill_2, epic_skill_2_level, epic_skill_2_count, drop_gold, drop_ruby, use_goods, remaining_goods, game_wave, drawing_count, result_kill_zombie, result_unit, result_gold, result_bp, result_adv_yn, result_score, season_exp, ar_upgrade_count, shotgun_upgrade_count, sniping_upgrade_count, ar_normal, ar_rare, ar_ancient, ar_relics, ar_narrative, ar_legend, ar_mythology, ar_beginning, shotgun_normal, shotgun_rare, shotgun_ancient, shotgun_relics, shotgun_narrative, shotgun_legend, shotgun_mythology, shotgun_beginning, sniping_normal, sniping_rare, sniping_ancient, sniping_relics, sniping_narrative, sniping_legend, sniping_mythology, sniping_beginning, ar_normal_sell, ar_rare_sell, ar_ancient_sell, ar_relics_sell, shotgun_normal_sell, shotgun_rare_sell, shotgun_ancient_sell, shotgun_relics_sell, sniping_normal_sell, sniping_rare_sell, sniping_ancient_sell, sniping_relics_sell, user_damage_up_skill_count, user_speed_attack_up_skill_count, user_start_nut_up_skill_count, user_epic_time_down_up_skill_count, user_zombie_max_up_skill_count, user_game_speed_up_skill_count, user_nut_up_skill_count, user_gold_up_skill_count, user_ruby_up_skill_count, unit_narrative_exchange_count,  unit_legend_exchange_count, unit_mythology_exchange_count, special_draw_count, normal_exchange_count, ins_date, ins_ip, ins_machine)
+        VALUES
+        (#{start_seq}, #{unique_idx}, #{user_uuid}, #{game_mode}, #{game_level}, #{game_result}, #{game_play_time}, #{epic_skill_1}, #{epic_skill_1_level}, #{epic_skill_1_count}, #{epic_skill_2}, #{epic_skill_2_level}, #{epic_skill_2_count}, #{drop_gold}, #{drop_ruby}, #{use_goods}, #{remaining_goods}, #{game_wave}, #{drawing_count}, #{result_kill_zombie}, #{result_unit}, #{result_gold}, #{result_bp}, #{result_adv_yn}, #{result_score}, #{season_exp}, #{ar_upgrade_count}, #{shotgun_upgrade_count}, #{sniping_upgrade_count}, #{ar_normal}, #{ar_rare}, #{ar_ancient}, #{ar_relics}, #{ar_narrative}, #{ar_legend}, #{ar_mythology}, #{ar_beginning}, #{shotgun_normal}, #{shotgun_rare}, #{shotgun_ancient}, #{shotgun_relics}, #{shotgun_narrative}, #{shotgun_legend}, #{shotgun_mythology}, #{shotgun_beginning}, #{sniping_normal}, #{sniping_rare}, #{sniping_ancient}, #{sniping_relics}, #{sniping_narrative}, #{sniping_legend}, #{sniping_mythology}, #{sniping_beginning}, #{ar_normal_sell}, #{ar_rare_sell}, #{ar_ancient_sell}, #{ar_relics_sell}, #{shotgun_normal_sell}, #{shotgun_rare_sell}, #{shotgun_ancient_sell}, #{shotgun_relics_sell}, #{sniping_normal_sell}, #{sniping_rare_sell}, #{sniping_ancient_sell}, #{sniping_relics_sell}, #{user_damage_up_skill_count}, #{user_speed_attack_up_skill_count}, #{user_start_nut_up_skill_count}, #{user_epic_time_down_up_skill_count}, #{user_zombie_max_up_skill_count}, #{user_game_speed_up_skill_count}, #{user_nut_up_skill_count}, #{user_gold_up_skill_count}, #{user_ruby_up_skill_count}, #{unit_narrative_exchange_count}, #{unit_legend_exchange_count}, #{unit_mythology_exchange_count}, #{special_draw_count}, #{normal_exchange_count}, NOW(), #{ins_ip}, #{ins_machine})
+    </insert>
+
+    <insert id="insGameUserResultLog" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="result_seq">
+        INSERT INTO game_max_result_data
+        (start_seq, unique_idx, user_uuid, game_mode, game_level, game_result, game_play_time, epic_skill_1, epic_skill_1_level, epic_skill_1_count, epic_skill_2, epic_skill_2_level, epic_skill_2_count, drop_gold, drop_ruby, use_goods, remaining_goods, game_wave, drawing_count, result_kill_zombie, result_unit, result_gold, result_bp, result_adv_yn, result_score, ar_upgrade_count, shotgun_upgrade_count, sniping_upgrade_count, ar_normal, ar_rare, ar_ancient, ar_relics, ar_narrative, ar_legend, ar_mythology, ar_beginning, shotgun_normal, shotgun_rare, shotgun_ancient, shotgun_relics, shotgun_narrative, shotgun_legend, shotgun_mythology, shotgun_beginning, sniping_normal, sniping_rare, sniping_ancient, sniping_relics, sniping_narrative, sniping_legend, sniping_mythology, sniping_beginning, ar_normal_sell, ar_rare_sell, ar_ancient_sell, ar_relics_sell, shotgun_normal_sell, shotgun_rare_sell, shotgun_ancient_sell, shotgun_relics_sell, sniping_normal_sell, sniping_rare_sell, sniping_ancient_sell, sniping_relics_sell, user_damage_up_skill_count, user_speed_attack_up_skill_count, user_start_nut_up_skill_count, user_epic_time_down_up_skill_count, user_zombie_max_up_skill_count, user_game_speed_up_skill_count, user_nut_up_skill_count, user_gold_up_skill_count, user_ruby_up_skill_count, unit_narrative_exchange_count,  unit_legend_exchange_count, unit_mythology_exchange_count, special_draw_count, normal_exchange_count, ins_date, ins_ip, ins_machine)
+        VALUES
+            (#{start_seq}, #{unique_idx}, #{user_uuid}, #{game_mode}, #{game_level}, #{game_result}, #{game_play_time}, #{epic_skill_1}, #{epic_skill_1_level}, #{epic_skill_1_count}, #{epic_skill_2}, #{epic_skill_2_level}, #{epic_skill_2_count}, #{drop_gold}, #{drop_ruby}, #{use_goods}, #{remaining_goods}, #{game_wave}, #{drawing_count}, #{result_kill_zombie}, #{result_unit}, #{result_gold}, #{result_bp}, #{result_adv_yn}, #{result_score}, #{ar_upgrade_count}, #{shotgun_upgrade_count}, #{sniping_upgrade_count}, #{ar_normal}, #{ar_rare}, #{ar_ancient}, #{ar_relics}, #{ar_narrative}, #{ar_legend}, #{ar_mythology}, #{ar_beginning}, #{shotgun_normal}, #{shotgun_rare}, #{shotgun_ancient}, #{shotgun_relics}, #{shotgun_narrative}, #{shotgun_legend}, #{shotgun_mythology}, #{shotgun_beginning}, #{sniping_normal}, #{sniping_rare}, #{sniping_ancient}, #{sniping_relics}, #{sniping_narrative}, #{sniping_legend}, #{sniping_mythology}, #{sniping_beginning}, #{ar_normal_sell}, #{ar_rare_sell}, #{ar_ancient_sell}, #{ar_relics_sell}, #{shotgun_normal_sell}, #{shotgun_rare_sell}, #{shotgun_ancient_sell}, #{shotgun_relics_sell}, #{sniping_normal_sell}, #{sniping_rare_sell}, #{sniping_ancient_sell}, #{sniping_relics_sell}, #{user_damage_up_skill_count}, #{user_speed_attack_up_skill_count}, #{user_start_nut_up_skill_count}, #{user_epic_time_down_up_skill_count}, #{user_zombie_max_up_skill_count}, #{user_game_speed_up_skill_count}, #{user_nut_up_skill_count}, #{user_gold_up_skill_count}, #{user_ruby_up_skill_count}, #{unit_narrative_exchange_count}, #{unit_legend_exchange_count}, #{unit_mythology_exchange_count}, #{special_draw_count}, #{normal_exchange_count}, NOW(), #{ins_ip}, #{ins_machine})
+    </insert>
+
+    <insert id="insGameUserWeekResultLog" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="result_seq">
+        INSERT INTO game_week_result_data
+        (start_seq, unique_idx, user_uuid, game_mode, game_level, game_result, game_play_time, epic_skill_1, epic_skill_1_level, epic_skill_1_count, epic_skill_2, epic_skill_2_level, epic_skill_2_count, drop_gold, drop_ruby, use_goods, remaining_goods, game_wave, drawing_count, result_kill_zombie, result_unit, result_gold, result_bp, result_adv_yn, result_score, ar_upgrade_count, shotgun_upgrade_count, sniping_upgrade_count, ar_normal, ar_rare, ar_ancient, ar_relics, ar_narrative, ar_legend, ar_mythology, ar_beginning, shotgun_normal, shotgun_rare, shotgun_ancient, shotgun_relics, shotgun_narrative, shotgun_legend, shotgun_mythology, shotgun_beginning, sniping_normal, sniping_rare, sniping_ancient, sniping_relics, sniping_narrative, sniping_legend, sniping_mythology, sniping_beginning, ar_normal_sell, ar_rare_sell, ar_ancient_sell, ar_relics_sell, shotgun_normal_sell, shotgun_rare_sell, shotgun_ancient_sell, shotgun_relics_sell, sniping_normal_sell, sniping_rare_sell, sniping_ancient_sell, sniping_relics_sell, user_damage_up_skill_count, user_speed_attack_up_skill_count, user_start_nut_up_skill_count, user_epic_time_down_up_skill_count, user_zombie_max_up_skill_count, user_game_speed_up_skill_count, user_nut_up_skill_count, user_gold_up_skill_count, user_ruby_up_skill_count, unit_narrative_exchange_count,  unit_legend_exchange_count, unit_mythology_exchange_count, special_draw_count, normal_exchange_count, ins_date, ins_ip, ins_machine)
+        VALUES
+            (#{start_seq}, #{unique_idx}, #{user_uuid}, #{game_mode}, #{game_level}, #{game_result}, #{game_play_time}, #{epic_skill_1}, #{epic_skill_1_level}, #{epic_skill_1_count}, #{epic_skill_2}, #{epic_skill_2_level}, #{epic_skill_2_count}, #{drop_gold}, #{drop_ruby}, #{use_goods}, #{remaining_goods}, #{game_wave}, #{drawing_count}, #{result_kill_zombie}, #{result_unit}, #{result_gold}, #{result_bp}, #{result_adv_yn}, #{result_score}, #{ar_upgrade_count}, #{shotgun_upgrade_count}, #{sniping_upgrade_count}, #{ar_normal}, #{ar_rare}, #{ar_ancient}, #{ar_relics}, #{ar_narrative}, #{ar_legend}, #{ar_mythology}, #{ar_beginning}, #{shotgun_normal}, #{shotgun_rare}, #{shotgun_ancient}, #{shotgun_relics}, #{shotgun_narrative}, #{shotgun_legend}, #{shotgun_mythology}, #{shotgun_beginning}, #{sniping_normal}, #{sniping_rare}, #{sniping_ancient}, #{sniping_relics}, #{sniping_narrative}, #{sniping_legend}, #{sniping_mythology}, #{sniping_beginning}, #{ar_normal_sell}, #{ar_rare_sell}, #{ar_ancient_sell}, #{ar_relics_sell}, #{shotgun_normal_sell}, #{shotgun_rare_sell}, #{shotgun_ancient_sell}, #{shotgun_relics_sell}, #{sniping_normal_sell}, #{sniping_rare_sell}, #{sniping_ancient_sell}, #{sniping_relics_sell}, #{user_damage_up_skill_count}, #{user_speed_attack_up_skill_count}, #{user_start_nut_up_skill_count}, #{user_epic_time_down_up_skill_count}, #{user_zombie_max_up_skill_count}, #{user_game_speed_up_skill_count}, #{user_nut_up_skill_count}, #{user_gold_up_skill_count}, #{user_ruby_up_skill_count}, #{unit_narrative_exchange_count}, #{unit_legend_exchange_count}, #{unit_mythology_exchange_count}, #{special_draw_count}, #{normal_exchange_count}, NOW(), #{ins_ip}, #{ins_machine})
+    </insert>
+
+    <select id="selectGameUserResultLog" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT result_score
+        FROM game_max_result_data
+        WHERE game_mode = #{game_mode}
+          AND game_level = #{game_level}
+          AND user_uuid = #{user_uuid}
+    </select>
+
+    <update id="uptGameUserResultLog" parameterType="java.util.HashMap">
+        UPDATE game_max_result_data
+        SET
+            start_seq=#{start_seq},
+            unique_idx=#{unique_idx},
+            user_uuid=#{user_uuid},
+            game_mode=#{game_mode},
+            game_level=#{game_level},
+            game_result=#{game_result},
+            game_play_time=#{game_play_time},
+            epic_skill_1=#{epic_skill_1},
+            epic_skill_1_level=#{epic_skill_1_level},
+            epic_skill_1_count=#{epic_skill_1_count},
+            epic_skill_2=#{epic_skill_2},
+            epic_skill_2_level=#{epic_skill_2_level},
+            epic_skill_2_count=#{epic_skill_2_count},
+            use_goods=#{use_goods},
+            drop_gold=#{drop_gold},
+            drop_ruby=#{drop_ruby},
+            remaining_goods=#{remaining_goods},
+            game_wave=#{game_wave},
+            drawing_count=#{drawing_count},
+            result_kill_zombie=#{result_kill_zombie},
+            result_unit=#{result_unit},
+            result_gold=#{result_gold},
+            result_bp=#{result_bp},
+            result_adv_yn=#{result_adv_yn},
+            result_score=#{result_score},
+            ar_upgrade_count=#{ar_upgrade_count},
+            shotgun_upgrade_count=#{shotgun_upgrade_count},
+            sniping_upgrade_count=#{sniping_upgrade_count},
+            ar_normal=#{ar_normal},
+            ar_rare=#{ar_rare},
+            ar_ancient=#{ar_ancient},
+            ar_relics=#{ar_relics},
+            ar_narrative=#{ar_narrative},
+            ar_legend=#{ar_legend},
+            ar_mythology=#{ar_mythology},
+            ar_beginning=#{ar_beginning},
+            shotgun_normal=#{shotgun_normal},
+            shotgun_rare=#{shotgun_rare},
+            shotgun_ancient=#{shotgun_ancient},
+            shotgun_relics=#{shotgun_relics},
+            shotgun_narrative=#{shotgun_narrative},
+            shotgun_legend=#{shotgun_legend},
+            shotgun_mythology=#{shotgun_mythology},
+            shotgun_beginning=#{shotgun_beginning},
+            sniping_normal=#{sniping_normal},
+            sniping_rare=#{sniping_rare},
+            sniping_ancient=#{sniping_ancient},
+            sniping_relics=#{sniping_relics},
+            sniping_narrative=#{sniping_narrative},
+            sniping_legend=#{sniping_legend},
+            sniping_mythology=#{sniping_mythology},
+            sniping_beginning=#{sniping_beginning},
+            ar_normal_sell=#{ar_normal_sell},
+            ar_rare_sell=#{ar_rare_sell},
+            ar_ancient_sell=#{ar_ancient_sell},
+            ar_relics_sell=#{ar_relics_sell},
+            shotgun_normal_sell=#{shotgun_normal_sell},
+            shotgun_rare_sell=#{shotgun_rare_sell},
+            shotgun_ancient_sell=#{shotgun_ancient_sell},
+            shotgun_relics_sell=#{shotgun_relics_sell},
+            sniping_normal_sell=#{sniping_normal_sell},
+            sniping_rare_sell=#{sniping_rare_sell},
+            sniping_ancient_sell=#{sniping_ancient_sell},
+            sniping_relics_sell=#{sniping_relics_sell},
+            user_damage_up_skill_count=#{user_damage_up_skill_count},
+            user_speed_attack_up_skill_count=#{user_speed_attack_up_skill_count},
+            user_start_nut_up_skill_count=#{user_start_nut_up_skill_count},
+            user_epic_time_down_up_skill_count=#{user_epic_time_down_up_skill_count},
+            user_zombie_max_up_skill_count=#{user_zombie_max_up_skill_count},
+            user_game_speed_up_skill_count=#{user_game_speed_up_skill_count},
+            user_nut_up_skill_count=#{user_nut_up_skill_count},
+            user_gold_up_skill_count=#{user_gold_up_skill_count},
+            user_ruby_up_skill_count=#{user_ruby_up_skill_count},
+            unit_narrative_exchange_count=#{unit_narrative_exchange_count},
+            unit_legend_exchange_count=#{unit_legend_exchange_count},
+            unit_mythology_exchange_count=#{unit_mythology_exchange_count},
+            special_draw_count=#{special_draw_count},
+            normal_exchange_count=#{normal_exchange_count},
+            ins_date=NOW(),
+            ins_ip=#{ins_ip},
+            ins_machine=#{ins_machine}
+        WHERE game_mode = #{game_mode}
+          AND game_level = #{game_level}
+          AND user_uuid = #{user_uuid}
+    </update>
+
+    <insert id="insGameResultHackLog" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="result_seq">
+        INSERT INTO game_result_data_hack
+        (start_seq, hack_memo, unique_idx, user_uuid, game_mode, game_level, game_result, game_play_time, epic_skill_1, epic_skill_1_level, epic_skill_1_count, epic_skill_2, epic_skill_2_level, epic_skill_2_count, drop_gold, drop_ruby, use_goods, remaining_goods, game_wave, drawing_count, result_kill_zombie, result_unit, result_gold, result_bp, result_adv_yn, result_score, ar_upgrade_count, shotgun_upgrade_count, sniping_upgrade_count, ar_normal, ar_rare, ar_ancient, ar_relics, ar_narrative, ar_legend, ar_mythology, ar_beginning, shotgun_normal, shotgun_rare, shotgun_ancient, shotgun_relics, shotgun_narrative, shotgun_legend, shotgun_mythology, shotgun_beginning, sniping_normal, sniping_rare, sniping_ancient, sniping_relics, sniping_narrative, sniping_legend, sniping_mythology, sniping_beginning, ar_normal_sell, ar_rare_sell, ar_ancient_sell, ar_relics_sell, shotgun_normal_sell, shotgun_rare_sell, shotgun_ancient_sell, shotgun_relics_sell, sniping_normal_sell, sniping_rare_sell, sniping_ancient_sell, sniping_relics_sell, user_damage_up_skill_count, user_speed_attack_up_skill_count, user_start_nut_up_skill_count, user_epic_time_down_up_skill_count, user_zombie_max_up_skill_count, user_game_speed_up_skill_count, user_nut_up_skill_count, user_gold_up_skill_count, user_ruby_up_skill_count, unit_narrative_exchange_count,  unit_legend_exchange_count, unit_mythology_exchange_count, ins_date, ins_ip, ins_machine)
+        VALUES
+            (#{start_seq}, #{hack_memo}, #{unique_idx}, #{user_uuid}, #{game_mode}, #{game_level}, #{game_result}, #{game_play_time}, #{epic_skill_1}, #{epic_skill_1_level}, #{epic_skill_1_count}, #{epic_skill_2}, #{epic_skill_2_level}, #{epic_skill_2_count}, #{drop_gold}, #{drop_ruby}, #{use_goods}, #{remaining_goods}, #{game_wave}, #{drawing_count}, #{result_kill_zombie}, #{result_unit}, #{result_gold}, #{result_bp}, #{result_adv_yn}, #{result_score}, #{ar_upgrade_count}, #{shotgun_upgrade_count}, #{sniping_upgrade_count}, #{ar_normal}, #{ar_rare}, #{ar_ancient}, #{ar_relics}, #{ar_narrative}, #{ar_legend}, #{ar_mythology}, #{ar_beginning}, #{shotgun_normal}, #{shotgun_rare}, #{shotgun_ancient}, #{shotgun_relics}, #{shotgun_narrative}, #{shotgun_legend}, #{shotgun_mythology}, #{shotgun_beginning}, #{sniping_normal}, #{sniping_rare}, #{sniping_ancient}, #{sniping_relics}, #{sniping_narrative}, #{sniping_legend}, #{sniping_mythology}, #{sniping_beginning}, #{ar_normal_sell}, #{ar_rare_sell}, #{ar_ancient_sell}, #{ar_relics_sell}, #{shotgun_normal_sell}, #{shotgun_rare_sell}, #{shotgun_ancient_sell}, #{shotgun_relics_sell}, #{sniping_normal_sell}, #{sniping_rare_sell}, #{sniping_ancient_sell}, #{sniping_relics_sell}, #{user_damage_up_skill_count}, #{user_speed_attack_up_skill_count}, #{user_start_nut_up_skill_count}, #{user_epic_time_down_up_skill_count}, #{user_zombie_max_up_skill_count}, #{user_game_speed_up_skill_count}, #{user_nut_up_skill_count}, #{user_gold_up_skill_count}, #{user_ruby_up_skill_count}, #{unit_narrative_exchange_count}, #{unit_legend_exchange_count}, #{unit_mythology_exchange_count}, NOW(), #{ins_ip}, #{ins_machine})
+    </insert>
+
+    <select id="selectWaveList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM in_game_wave
+        WHERE game_mode = #{game_mode}
+          AND game_level = #{game_level}
+        ORDER by wave_num asc
+    </select>
+
+    <select id="selectGameModeList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT game_mode, game_level, game_title, max_round, boss_point_reward, goods_spawn, exp_bonus, week_rank_1_reward, week_rank_2_reward, week_rank_3_reward
+        FROM game_mode_data
+        WHERE game_mode = #{game_mode}
+          AND game_level = #{game_level}
+    </select>
+
+    <select id="selectUnitList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT unit_type, unit_rating, unit_name, unit_damage, unit_upgrade_damage, unit_range, unit_cool_time, unit_speed, unit_percentage, unit_asset_head, unit_asset_weapon, unit_asset_face, unit_asset_body
+        FROM unit_data a
+    </select>
+
+    <insert id="insGameExperienceLog" parameterType="java.util.HashMap">
+        INSERT INTO uesr_level_log
+        (user_uuid,
+         experience_quantity,
+         before_level,
+         after_level,
+         before_experience_max,
+         after_experience_max,
+         before_experience,
+         after_experience,
+         start_seq,
+         etc_note,
+         ins_data,
+         ins_ip,
+         ins_machine)
+        VALUES      (#{user_uuid},
+                     #{experience_quantity},
+                     #{before_level},
+                     #{after_level},
+                     #{before_experience_max},
+                     #{after_experience_max},
+                     #{before_experience},
+                     #{after_experience},
+                     #{start_seq},
+                     #{etc_note},
+                     Now(),
+                     #{ins_ip},
+                     #{ins_machine})
+    </insert>
+
+    <select id="stageAllList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM game_mode_data
+        WHERE game_mode = 'easy'
+    </select>
+
+    <select id="selectGameResultData" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM game_result_data
+        WHERE seq = #{result_seq}
+    </select>
+
+    <select id="selectGameResultDataStartSeq" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM game_result_data
+        WHERE start_seq = #{start_seq}
+    </select>
+
+    <select id="stageBossList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM game_mode_data
+        WHERE game_mode = 'boss'
+    </select>
+
+    <select id="stageBossCountList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT COUNT(*) as boss_day_count
+        FROM game_start_data
+        WHERE user_uuid = #{user_uuid}
+          and game_mode = #{game_mode}
+          AND game_level = #{game_level}
+          AND DATE(ins_date) = CURDATE()
+    </select>
+
+    <select id="stageAllList2" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM game_mode_data
+    </select>
+
+</mapper>

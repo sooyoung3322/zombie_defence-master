@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goall.zombie_defence.mapper.CommonMapper">
+
+    <select id="nowDataTimeAndGameVersion" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        select NOW() AS now_date_time, a.*
+        FROM game_version a
+        WHERE a.version = (SELECT MAX(VERSION) FROM game_version)
+    </select>
+
+    <insert id="insAdvertisementLog" parameterType="java.util.HashMap">
+        INSERT INTO advertisement_log
+            (
+             advertisement_unique_idx,
+             user_uuid,
+             skip_yn,
+             ins_date,
+             ins_ip,
+             ins_machine
+             )
+        VALUES
+            (
+             #{advertisement_unique_idx},
+             #{user_uuid},
+             #{skip_yn},
+             Now(),
+             #{ins_ip},
+             #{ins_machine}
+             )
+    </insert>
+
+    <insert id="insAdvertisementFirstTimeData" parameterType="java.util.HashMap">
+        INSERT INTO advertisement_time_data
+            (
+             user_uuid,
+             epic_skill_normal_last_charge_time,
+             epic_skill_advanced_last_charge_time,
+             game_key_50_last_charge_time
+             )
+        VALUES
+            (
+             #{user_uuid},
+             NOW(),
+             NOW(),
+             NOW()
+             )
+    </insert>
+
+    <update id="uptAdvertisementTimeData" parameterType="java.util.HashMap">
+
+        UPDATE advertisement_time_data
+            SET
+            <if test='advertisement_type == "epic_skill_normal"'>
+            epic_skill_normal_last_charge_time = ADDDATE(NOW(), INTERVAL 20 MINUTE)
+            </if>
+            <if test='advertisement_type == "epic_skill_advanced"'>
+            epic_skill_advanced_last_charge_time = ADDDATE(NOW(), INTERVAL 3 HOUR)
+            </if>
+            <if test='advertisement_type == "game_key_50"'>
+            game_key_50_last_charge_time = ADDDATE(NOW(), INTERVAL 3 HOUR)
+            </if>
+        WHERE
+            user_uuid = #{user_uuid}
+    </update>
+
+</mapper>

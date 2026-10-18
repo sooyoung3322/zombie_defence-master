@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goall.zombie_defence.mapper.UserMapper">
+
+    <select id="userUuidCheck" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT COUNT(*) AS uuidCheck
+        FROM user_data a
+        WHERE a.user_uuid = #{user_uuid}
+    </select>
+
+    <select id="userNickNameCheck" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT COUNT(*) AS nickNameCheck, user_uuid
+        FROM user_data a
+        WHERE a.user_nickname = #{user_nickname}
+    </select>
+
+    <insert id="insUserData" parameterType="java.util.HashMap">
+        INSERT INTO user_data
+                (
+                 user_platform,
+                 user_uuid,
+                 user_nickname,
+                 user_ruby,
+                 user_gold,
+                 user_bp,
+                 user_level,
+                 user_level_experience,
+                 user_level_experience_max,
+                 user_key,
+                 user_key_remain_time,
+                 user_key_last_charge_time,
+                 user_game_count,
+                 user_epic_bag_max,
+                 user_epic_skill_1,
+                 user_epic_skill_2,
+                 advertisement_buy_yn,
+                 use_yn,
+                 plus_skill_point,
+                 last_login,
+                 user_position,
+                 user_insert_date)
+        VALUES
+                ( #{platform},
+                  #{user_uuid},
+                  #{user_nickname},
+                  '1000',
+                  '10000',
+                  '0',
+                  '1',
+                  '0',
+                  '0',
+                  '50',
+                  '60',
+                  Now(),
+                  '0',
+                  '300',
+                  '0',
+                  '0',
+                  'N',
+                 'Y',
+                 '0',
+                 Now(),
+                 #{user_position},
+                  Now())
+    </insert>
+
+    <select id="selectUserData" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT a.user_uuid, a.user_nickname, a.user_ruby, a.user_gold, a.user_bp, a.user_level,
+               a.user_level_experience, a.user_level_experience_max, a.user_key, a.user_key_remain_time, a.user_key_last_charge_time, a.user_game_count,
+               a.user_epic_bag_max, a.user_epic_skill_1, a.user_epic_skill_2, a.advertisement_buy_yn, a.use_yn, a.plus_skill_point, a.last_login, a.user_position, a.user_token,
+               b.*, c.*
+        FROM user_data a
+                 LEFT JOIN advertisement_time_data b ON a.user_uuid = b.user_uuid
+                 LEFT JOIN exp_booster_data c ON a.user_uuid = c.user_uuid
+        where a.user_uuid = #{user_uuid}
+    </select>
+
+    <insert id="insUserLoginLog" parameterType="java.util.HashMap">
+        INSERT INTO user_login_log
+            (user_uuid, user_nickname, ins_date, ins_ip, ins_machine)
+        VALUES (#{user_uuid}, #{user_nickname}, NOW(), #{ins_ip}, #{ins_machine})
+    </insert>
+
+    <update id="uptUserGameCount" parameterType="java.util.HashMap">
+        UPDATE user_data
+        SET
+            user_game_count=user_game_count+1
+        WHERE
+            user_uuid = #{user_uuid}
+    </update>
+
+    <update id="uptUserToken" parameterType="java.util.HashMap">
+        UPDATE user_data
+        SET
+            user_token = #{user_token}
+        WHERE user_uuid = #{user_uuid}
+    </update>
+
+    <update id="uptUserLevelExp" parameterType="java.util.HashMap">
+        UPDATE user_data
+        SET
+            user_level=#{user_level},
+            user_level_experience=#{user_level_experience},
+            user_level_experience_max=#{user_level_experience_max}
+        WHERE user_uuid = #{user_uuid}
+    </update>
+
+    <update id="uptUserAdvertisementSkipYn" parameterType="java.util.HashMap">
+        UPDATE user_data
+        SET
+            advertisement_buy_yn = 'Y'
+        WHERE user_uuid = #{user_uuid}
+    </update>
+
+    <update id="uptUserlastLogin" parameterType="java.util.HashMap">
+        UPDATE user_data
+        SET
+            last_login = Now()
+        WHERE user_uuid = #{user_uuid}
+    </update>
+
+    <insert id="insUserRecommendations" parameterType="java.util.HashMap">
+        INSERT INTO user_recommendations
+            (from_user_uuid, to_user_uuid, ins_data, ins_ip, ins_machine)
+        VALUES (#{user_uuid}, #{to_user_uuid}, NOW(), #{ins_ip}, #{ins_machine})
+    </insert>
+
+    <select id="selectUserRecommendationsFrom" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT count(from_user_uuid) AS from_user_uuid
+        FROM user_recommendations
+        WHERE from_user_uuid = #{user_uuid}
+    </select>
+
+    <select id="selectUserRecommendationsTo" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT count(to_user_uuid) AS to_user_uuid
+        FROM user_recommendations
+        WHERE to_user_uuid = #{to_user_uuid}
+    </select>
+
+    <update id="uptUserepickSkillPlus" parameterType="java.util.HashMap">
+        UPDATE user_data
+        SET
+            plus_skill_point = plus_skill_point + #{plus_skill_point}
+        WHERE user_uuid = #{user_uuid}
+    </update>
+
+    <!--################유저 연동 쿼리 모음-->
+
+    <insert id="insUserLinkLog" parameterType="java.util.HashMap">
+        INSERT INTO user_linked_log
+            (guest_user_uuid, normal_user_uuid, ins_data, ins_ip, ins_machine)
+        VALUES (#{guest_user_uuid}, #{normal_user_uuid}, NOW(), #{ins_ip}, #{ins_machine})
+    </insert>
+
+    <update id="uptLinkUserAdvertisementLog" parameterType="java.util.HashMap">
+        UPDATE advertisement_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserAdvertisementTimeData" parameterType="java.util.HashMap">
+        UPDATE advertisement_time_data
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserBuyGoodsLog" parameterType="java.util.HashMap">
+        UPDATE buy_goods_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserChargeGoldLog" parameterType="java.util.HashMap">
+        UPDATE charge_gold_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserChargeKeyLog" parameterType="java.util.HashMap">
+        UPDATE charge_key_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserChargeRubyLog" parameterType="java.util.HashMap">
+        UPDATE charge_ruby_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserEpicSkillChangeLog" parameterType="java.util.HashMap">
+        UPDATE epic_skill_change_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserEpicSkillSellLog" parameterType="java.util.HashMap">
+        UPDATE epic_skill_sell_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserepicSkillSynthesisLog" parameterType="java.util.HashMap">
+        UPDATE epic_skill_synthesis_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserEpicSkillUpgradeLog" parameterType="java.util.HashMap">
+        UPDATE epic_skill_upgrade_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserExpBoosterData" parameterType="java.util.HashMap">
+        UPDATE exp_booster_data
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserGameRankRewardLog" parameterType="java.util.HashMap">
+        UPDATE game_rank_reward_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserGameResultData" parameterType="java.util.HashMap">
+        UPDATE game_result_data
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserGameResultDataHack" parameterType="java.util.HashMap">
+        UPDATE game_result_data_hack
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserGameStartData" parameterType="java.util.HashMap">
+        UPDATE game_start_data
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserProductSaleLog" parameterType="java.util.HashMap">
+        UPDATE product_sale_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserQuestLog" parameterType="java.util.HashMap">
+        UPDATE quest_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserUesrLevelLog" parameterType="java.util.HashMap">
+        UPDATE uesr_level_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserUserData" parameterType="java.util.HashMap">
+        UPDATE user_data
+        SET
+            user_uuid = #{normal_user_uuid},
+            user_position = 'normal'
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserUserDrone" parameterType="java.util.HashMap">
+        UPDATE user_drone
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserUserEpicSkillData" parameterType="java.util.HashMap">
+        UPDATE user_epic_skill_data
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserUserLoginLog" parameterType="java.util.HashMap">
+        UPDATE user_login_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserUserMailData" parameterType="java.util.HashMap">
+        UPDATE user_mail_data
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserUserPlayerSkillData" parameterType="java.util.HashMap">
+        UPDATE user_player_skill_data
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserUseCashLog" parameterType="java.util.HashMap">
+        UPDATE use_cash_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserUseGoldLog" parameterType="java.util.HashMap">
+        UPDATE use_gold_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserUseGoodsLog" parameterType="java.util.HashMap">
+        UPDATE use_goods_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserUseKeyLog" parameterType="java.util.HashMap">
+        UPDATE use_key_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserUseRubyLog" parameterType="java.util.HashMap">
+        UPDATE use_ruby_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptLinkUserWeekRankData" parameterType="java.util.HashMap">
+        UPDATE week_rank_data
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptUnitUpgradeLogData" parameterType="java.util.HashMap">
+        UPDATE unit_upgrade_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptUserUnitUpgradeData" parameterType="java.util.HashMap">
+        UPDATE user_unit_upgrade_data
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptChargeBpLogData" parameterType="java.util.HashMap">
+        UPDATE charge_bp_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptUseBpLogData" parameterType="java.util.HashMap">
+        UPDATE use_bp_log
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptGameUserMaxData" parameterType="java.util.HashMap">
+        UPDATE game_max_result_data
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+
+
+
+    <update id="uptUserRecommendationsData" parameterType="java.util.HashMap">
+        UPDATE user_recommendations
+        SET
+            from_user_uuid = #{normal_user_uuid}
+        WHERE
+            from_user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptUserSeasonPackageExpData" parameterType="java.util.HashMap">
+        UPDATE user_season_package_exp_data
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptUserSeasonPackageInsertData" parameterType="java.util.HashMap">
+        UPDATE user_season_package_insert_data
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+    <update id="uptGameWeekResultData" parameterType="java.util.HashMap">
+        UPDATE game_week_result_data
+        SET
+            user_uuid = #{normal_user_uuid}
+        WHERE
+            user_uuid = #{guest_user_uuid}
+    </update>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <select id="adminPageNicknameSearch" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM user_data a
+        WHERE user_nickname LIKE #{user_nickname}
+    </select>
+
+    <select id="adminPageCafeEventYN" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT COUNT(*) as cafe_event_YN
+        FROM user_mail_data
+        WHERE user_uuid = #{user_uuid}
+          AND reward_unique = 'cafe_join_event'
+    </select>
+
+    <insert id="insCafeEvent" parameterType="java.util.HashMap">
+        INSERT INTO user_mail_data
+        (user_uuid,
+         all_mail_unique,
+         reward_unique,
+         mail_title,
+         mail_content,
+         mail_sender,
+         mail_start_date,
+         mail_end_date,
+         mail_note,
+         use_yn,
+         ins_date)
+        VALUES
+        (#{user_uuid},
+         CONCAT('cafe_join_event_', #{user_uuid}),
+         'cafe_join_event',
+         '카페 가입 이벤트 참여 보상',
+         '안녕하세요. 공식 카페에 가입해 주셔서 감사합니다!',
+         '운영진',
+         Now(),
+         ADDDATE(NOW(), INTERVAL 7 DAY),
+         '카페 가입 이벤트 참여 보상',
+         'Y',
+         Now())
+    </insert>
+
+</mapper>

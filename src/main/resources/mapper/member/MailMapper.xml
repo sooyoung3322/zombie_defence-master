@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goall.zombie_defence.mapper.MailMapper">
+
+    <select id="selectAllMailList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM all_mail_data a
+        WHERE a.start_date <![CDATA[<=]]> NOW() AND a.end_date <![CDATA[>=]]> NOW()
+    </select>
+
+    <select id="selectAllMailListCheck" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM all_mail_data a
+        LEFT JOIN user_mail_data b ON a.all_mail_unique = b.all_mail_unique
+        WHERE a.start_date <![CDATA[<=]]> NOW() AND a.end_date <![CDATA[>=]]> NOW()
+        AND a.seq = #{seq}
+        AND b.user_uuid = #{user_uuid}
+        GROUP BY a.seq
+
+    </select>
+
+    <insert id="insUserAllMail" parameterType="java.util.HashMap">
+        INSERT INTO user_mail_data
+        (
+         user_uuid,
+         all_mail_unique,
+         reward_unique,
+         mail_title,
+         mail_content,
+         mail_sender,
+         mail_start_date,
+         mail_end_date,
+         mail_note,
+         use_yn,
+         ins_date,
+         ins_ip,
+         ins_machine
+         )
+        VALUES      (
+                     #{user_uuid},
+                     #{all_mail_unique},
+                     #{reward_unique},
+                     #{mail_title},
+                     #{mail_content},
+                     #{mail_sender},
+                     Now(),
+                     DATE_ADD(NOW(), INTERVAL 7 DAY),
+                     #{mail_note},
+                     'Y',
+                     Now(),
+                     #{ins_ip},
+                     #{ins_machine}
+                     )
+    </insert>
+
+    <select id="selectUserMailList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT
+               seq,
+               reward_unique,
+               mail_title,
+               mail_content,
+               mail_sender,
+               mail_start_date,
+               mail_end_date
+        FROM   user_mail_data
+        WHERE user_uuid = #{user_uuid}
+          AND use_yn = 'Y'
+          AND mail_start_date <![CDATA[<=]]> NOW() AND mail_end_date <![CDATA[>=]]> NOW()
+        ORDER BY ins_date asc
+    </select>
+
+    <select id="selectUserMailRewardList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT reward_kinds, reward_count, reward_item_idx, reward_item_level, reward_item_grade
+        FROM mail_reward_data
+        WHERE reward_unique = #{reward_unique}
+    </select>
+
+    <update id="uptUserMailRewardUseYn" parameterType="java.util.HashMap">
+        UPDATE user_mail_data
+        SET
+            use_yn='N',
+            upt_date = NOW()
+        WHERE user_uuid = #{user_uuid}
+          AND seq = #{seq}
+    </update>
+
+    <select id="selectUserMailYnCheck" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT
+            use_yn
+        FROM   user_mail_data
+        WHERE user_uuid = #{user_uuid}
+          AND seq = #{seq}
+          AND use_yn = 'Y'
+          AND mail_start_date <![CDATA[<=]]> NOW() AND mail_end_date <![CDATA[>=]]> NOW()
+        ORDER BY ins_date asc
+    </select>
+
+</mapper>

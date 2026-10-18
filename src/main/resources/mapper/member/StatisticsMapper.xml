@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goall.zombie_defence.mapper.StatisticsMapper">
+
+    <select id="totalGameRanking" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT A.*
+
+        FROM(
+                SELECT T.* , ROW_NUMBER() OVER (ORDER BY result_score DESC) AS game_rank
+                FROM (
+                         SELECT
+                             a.start_seq,
+                             a.user_uuid, aa.user_nickname, a.game_play_time, a.game_wave, a.result_score AS result_score,
+                             a.epic_skill_1, a.epic_skill_1_level, a.epic_skill_2, a.epic_skill_2_level,
+                             (a.ar_legend + a.sniping_legend + a.shotgun_legend) AS legend_count,
+                             (a.ar_mythology + a.sniping_mythology + a.shotgun_mythology) AS mythology_count,
+                             (a.ar_beginning + a.sniping_beginning + a.shotgun_beginning) AS beginning_count,
+                             (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 )) as rank_start_date,
+                             (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 )) as rank_end_date,
+                             ROW_NUMBER() OVER (PARTITION BY user_uuid ORDER BY result_score DESC) AS RankNo
+                         FROM game_max_result_data a
+                                  LEFT JOIN user_data aa ON a.user_uuid = aa.user_uuid
+                         WHERE a.game_mode = #{game_mode}
+                           AND a.game_level = #{game_level}
+                            AND aa.use_yn = 'Y'
+                            AND NOT (aa.user_position = 'admin')
+                            AND a.game_result IN ('clear', 'Failed')
+                         ORDER by result_score DESC
+                     ) T
+                WHERE RankNo = 1
+
+            ) A
+
+        LIMIT 10
+
+    </select>
+
+    <select id="totalWeekGameRanking" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT A.*
+
+        FROM(
+        SELECT T.* , ROW_NUMBER() OVER (ORDER BY result_score DESC) AS game_rank
+        FROM (
+        SELECT
+        a.start_seq,
+        a.user_uuid, aa.user_nickname, a.game_play_time, a.game_wave, a.result_score AS result_score,
+        a.epic_skill_1, a.epic_skill_1_level, a.epic_skill_2, a.epic_skill_2_level,
+        (a.ar_legend + a.sniping_legend + a.shotgun_legend) AS legend_count,
+        (a.ar_mythology + a.sniping_mythology + a.shotgun_mythology) AS mythology_count,
+        (a.ar_beginning + a.sniping_beginning + a.shotgun_beginning) AS beginning_count,
+        (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 )) as rank_start_date,
+        (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 )) as rank_end_date,
+        ROW_NUMBER() OVER (PARTITION BY user_uuid ORDER BY result_score DESC) AS RankNo
+        FROM game_week_result_data a
+        LEFT JOIN user_data aa ON a.user_uuid = aa.user_uuid
+        WHERE a.game_mode = #{game_mode}
+        AND a.game_level = #{game_level}
+        AND aa.use_yn = 'Y'
+        AND NOT (aa.user_position = 'admin')
+        AND a.game_result IN ('clear', 'Failed')
+            and
+            date_format(ins_date,'%Y-%m-%d')
+            BETWEEN
+            (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 ))
+            AND
+            (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 ))
+        ORDER by result_score DESC
+        ) T
+        WHERE RankNo = 1
+
+        ) A
+
+        LIMIT 10
+
+    </select>
+
+    <select id="myTotalGameRanking" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT A.*
+        FROM(
+                SELECT T.* , ROW_NUMBER() OVER (ORDER BY result_score DESC) AS game_rank
+                FROM (
+                         SELECT
+                             a.start_seq,
+                             a.user_uuid, aa.user_nickname, a.game_play_time, a.game_wave, a.result_score AS result_score,
+                             a.epic_skill_1, a.epic_skill_1_level, a.epic_skill_2, a.epic_skill_2_level,
+                             (a.ar_legend + a.sniping_legend + a.shotgun_legend) AS legend_count,
+                             (a.ar_mythology + a.sniping_mythology + a.shotgun_mythology) AS mythology_count,
+                             (a.ar_beginning + a.sniping_beginning + a.shotgun_beginning) AS beginning_count,
+                             (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 )) as rank_start_date,
+                             (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 )) as rank_end_date,
+                              ROW_NUMBER() OVER (PARTITION BY user_uuid ORDER BY result_score DESC) AS RankNo
+                         FROM game_max_result_data a
+                                  LEFT JOIN user_data aa ON a.user_uuid = aa.user_uuid
+                         WHERE a.game_mode = #{game_mode}
+                           AND a.game_level = #{game_level}
+                            AND aa.use_yn = 'Y'
+                            AND NOT (aa.user_position = 'admin')
+                            AND a.game_result IN ('clear', 'Failed')
+                         ORDER by result_score DESC
+                     ) T
+                WHERE RankNo = 1
+
+            ) A
+
+        WHERE A.user_uuid = #{user_uuid}
+    </select>
+
+    <select id="myTotalWeekGameRanking" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT A.*
+        FROM(
+        SELECT T.* , ROW_NUMBER() OVER (ORDER BY result_score DESC) AS game_rank
+        FROM (
+        SELECT
+        a.start_seq,
+        a.user_uuid, aa.user_nickname, a.game_play_time, a.game_wave, a.result_score AS result_score,
+        a.epic_skill_1, a.epic_skill_1_level, a.epic_skill_2, a.epic_skill_2_level,
+        (a.ar_legend + a.sniping_legend + a.shotgun_legend) AS legend_count,
+        (a.ar_mythology + a.sniping_mythology + a.shotgun_mythology) AS mythology_count,
+        (a.ar_beginning + a.sniping_beginning + a.shotgun_beginning) AS beginning_count,
+        (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 )) as rank_start_date,
+        (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 )) as rank_end_date,
+        ROW_NUMBER() OVER (PARTITION BY user_uuid ORDER BY result_score DESC) AS RankNo
+        FROM game_week_result_data a
+        LEFT JOIN user_data aa ON a.user_uuid = aa.user_uuid
+        WHERE a.game_mode = #{game_mode}
+        AND a.game_level = #{game_level}
+        AND aa.use_yn = 'Y'
+        AND NOT (aa.user_position = 'admin')
+        AND a.game_result IN ('clear', 'Failed')
+            and
+            date_format(ins_date,'%Y-%m-%d')
+            BETWEEN
+            (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 ))
+            AND
+            (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 ))
+        ORDER by result_score DESC
+        ) T
+        WHERE RankNo = 1
+
+        ) A
+
+        WHERE A.user_uuid = #{user_uuid}
+    </select>
+
+    <!--<select id="myTotalGameRanking" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+    //자기 랭킹이 안나와서 못씀
+        SELECT
+            a.start_seq,
+            a.user_uuid, aa.user_nickname, a.game_play_time, a.game_wave, a.result_score AS result_score,
+            a.epic_skill_1, a.epic_skill_1_level, a.epic_skill_2, a.epic_skill_2_level,
+            (a.ar_legend + a.sniping_legend + a.shotgun_legend) AS legend_count,
+            (a.ar_mythology + a.sniping_mythology + a.shotgun_mythology) AS mythology_count,
+            (a.ar_beginning + a.sniping_beginning + a.shotgun_beginning) AS beginning_count,
+            (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 )) as rank_start_date,
+            (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 )) as rank_end_date,
+            ROW_NUMBER() OVER (PARTITION BY user_uuid ORDER BY result_score DESC) AS RankNo
+        FROM game_result_data a
+                 LEFT JOIN user_data aa ON a.user_uuid = aa.user_uuid
+        WHERE a.game_mode = 'easy'
+          AND a.game_level = '0'
+          AND a.game_result IN ('clear', 'Failed')
+          AND a.user_uuid = #{user_uuid}
+        <if test='week_data == "Y"'>
+            and
+            date_format(ins_date,'%Y-%m-%d')
+            BETWEEN
+            (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 ))
+            AND
+            (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 ))
+        </if>
+        ORDER by result_score DESC
+            LIMIT 1;
+    </select>-->
+
+    <insert id="insWeekGameRanking" parameterType="java.util.HashMap">
+        INSERT INTO week_rank_data
+        (
+         start_seq,
+         game_mode,
+         game_level,
+         rank_start_date,
+         rank_end_date,
+         game_rank,
+         user_uuid,
+         user_nickname,
+         game_play_time,
+         game_wave,
+         result_score,
+         epic_skill_1,
+         epic_skill_1_level,
+         epic_skill_2,
+         epic_skill_2_level,
+         legend_count,
+         mythology_count,
+         beginning_count,
+         ins_data)
+        VALUES
+        <foreach item="item" collection="weekRankResultList" separator=",">
+            (
+             #{item.start_seq},
+             #{game_mode},
+             #{game_level},
+             #{item.rank_start_date},
+             #{item.rank_end_date},
+             #{item.game_rank},
+             #{item.user_uuid},
+             #{item.user_nickname},
+             #{item.game_play_time},
+             #{item.game_wave},
+             #{item.result_score},
+             #{item.epic_skill_1},
+             #{item.epic_skill_1_level},
+             #{item.epic_skill_2},
+             #{item.epic_skill_2_level},
+             #{item.legend_count},
+             #{item.mythology_count},
+             #{item.beginning_count},
+             NOW())
+        </foreach>
+    </insert>
+
+    <select id="TotalLevelRanking" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT user_nickname, user_level, user_level_experience_max
+        FROM user_data
+        where use_yn = 'Y'
+          AND NOT (user_position = 'admin')
+        ORDER by user_level_experience_max DESC
+            LIMIT 10
+    </select>
+
+    <select id="myTotalLevelRanking" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT b.user_rank, b.user_level_experience_max, b.user_level, b.user_nickname
+        FROM (
+
+                 SELECT a.user_uuid, a.user_nickname, RANK() OVER(ORDER BY a.user_level_experience_max DESC) as user_rank, a.user_level_experience_max, a.user_level
+                 FROM user_data a
+
+             ) b
+        WHERE user_uuid = #{user_uuid}
+    </select>
+
+    <select id="myLastWeekTotalGameRanking" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT A.*
+
+        FROM(
+                SELECT T.* , ROW_NUMBER() OVER (ORDER BY result_score DESC) AS game_rank
+                FROM (
+                         SELECT
+                             a.start_seq, a.game_mode, a.game_level,
+                             a.user_uuid, aa.user_nickname, a.game_play_time, a.game_wave, a.result_score AS result_score,
+                             a.epic_skill_1, a.epic_skill_1_level, a.epic_skill_2, a.epic_skill_2_level,
+                             (a.ar_legend + a.sniping_legend + a.shotgun_legend) AS legend_count,
+                             (a.ar_mythology + a.sniping_mythology + a.shotgun_mythology) AS mythology_count,
+                             (a.ar_beginning + a.sniping_beginning + a.shotgun_beginning) AS beginning_count,
+                             (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) - 7  )) as rank_start_date,
+                             (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) - 1 )) as rank_end_date,
+                             ROW_NUMBER() OVER (PARTITION BY user_uuid ORDER BY result_score DESC) AS RankNo
+                         FROM game_week_result_data a
+                                  LEFT JOIN user_data aa ON a.user_uuid = aa.user_uuid
+                         WHERE a.game_mode = #{game_mode}
+                           AND a.game_level = #{game_level}
+                           AND aa.use_yn = 'Y'
+                           AND NOT (aa.user_position = 'admin')
+                           AND a.game_result IN ('clear', 'Failed')
+                           and
+                             date_format(ins_date,'%Y-%m-%d')
+                                 BETWEEN
+                                     (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) - 7 ))
+                                 AND
+                                     (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) - 1 ))
+                         ORDER by result_score DESC
+                     ) T
+                WHERE RankNo = 1
+            ) A
+        WHERE A.user_uuid = #{user_uuid}
+    </select>
+
+    <select id="stageList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM game_mode_data
+        WHERE game_mode = #{game_mode}
+          AND game_level = #{game_level}
+    </select>
+
+    <insert id="insGameRankRewardLog" parameterType="java.util.HashMap">
+        INSERT INTO game_rank_reward_log
+        (user_uuid,
+         game_reward_unique_idx,
+         start_seq,
+         game_mode,
+         game_level,
+         user_rank,
+         reward_ruby,
+         reward_bp,
+         rank_start_date,
+         rank_end_date,
+         rank_receive_week,
+         ins_date,
+         ins_ip,
+         ins_machine)
+        VALUES
+        <foreach item="item" collection="rankLogList" separator=",">
+            (
+            #{user_uuid},
+            #{item.game_reward_unique_idx},
+            #{item.start_seq},
+            #{item.game_mode},
+            #{item.game_level},
+            #{item.user_rank},
+            #{item.reward_ruby},
+            #{item.reward_bp},
+            (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) - 7 )),
+            (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) - 1 )),
+            (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 )),
+            Now(),
+            #{ins_ip},
+            #{ins_machine}
+            )
+        </foreach>
+    </insert>
+
+    <select id="gameRankRewardLogList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+          FROM game_rank_reward_log
+          where user_uuid = #{user_uuid}
+          and date_format(rank_receive_week,'%Y-%m-%d')
+            BETWEEN
+                (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 ))
+            and
+                (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 ))
+    </select>
+
+    <select id="bossStageHighScoreList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT *
+        FROM game_max_result_data
+        WHERE user_uuid = #{user_uuid}
+          AND game_mode = #{game_mode}
+          AND game_level = #{game_level}
+          AND DATE_FORMAT(ins_date, '%Y-%m-%d') BETWEEN
+                (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 0 ))
+            AND
+                (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) + 6 ))
+        ORDER BY result_score DESC
+            LIMIT 1;
+
+    </select>
+
+    <delete id="delGameWeekResultData" parameterType="java.util.HashMap">
+        DELETE
+        FROM game_week_result_data
+        where date_format(ins_date,'%Y-%m-%d')
+                  BETWEEN
+                      (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) - 14 ))
+                  AND
+                      (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) - 8 ))
+    </delete>
+
+<!--
+    퀘스트 보상받을때 리스트로 하나하나 받게 하려했는데 안 쓰게되었음....
+    <select id="gameRankRewardReceiveList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT c.game_mode, c.game_level, c.game_title,
+               DATE_ADD(CURDATE(), INTERVAL - WEEKDAY(CURDATE()) - 7 DAY) AS start_date,
+               DATE_ADD(CURDATE(), INTERVAL - WEEKDAY(CURDATE()) - 1 DAY) as rank_end_date,
+               IF(EXISTS(SELECT 1
+                         FROM game_rank_reward_log b
+                         WHERE b.game_mode = c.game_mode
+                           AND b.game_level = c.game_level
+                           AND b.user_uuid = #{user_uuid}
+                           AND DATE_FORMAT(b.ins_date, '%Y-%m-%d')
+                             BETWEEN DATE_ADD(CURDATE(), INTERVAL - WEEKDAY(CURDATE()) DAY)
+                             AND DATE_ADD(CURDATE(), INTERVAL - WEEKDAY(CURDATE()) + 6 DAY)), 'Y', 'N') AS reward_receive_yn,
+               IF(EXISTS(SELECT 1
+                         FROM (
+                                  SELECT T.* , ROW_NUMBER() OVER (PARTITION BY T.game_mode, T.game_level ORDER BY result_score DESC) AS game_rank
+                                  FROM (
+                                           SELECT
+                                               a.start_seq, a.game_mode, a.game_level,
+                                               a.user_uuid, aa.user_nickname, a.game_play_time, a.game_wave, a.result_score AS result_score
+                                           FROM game_result_data a
+                                                    LEFT JOIN user_data aa ON a.user_uuid = aa.user_uuid
+                                           WHERE a.game_mode = c.game_mode
+                                             AND a.game_level = c.game_level
+                                             AND aa.use_yn = 'Y'
+                                             AND aa.user_position = 'normal'
+                                             AND a.game_result IN ('clear', 'Failed')
+                                             AND DATE_FORMAT(a.ins_date, '%Y-%m-%d')
+                                               BETWEEN DATE_ADD(CURDATE(), INTERVAL - WEEKDAY(CURDATE()) - 7 DAY)
+                                               AND DATE_ADD(CURDATE(), INTERVAL - WEEKDAY(CURDATE()) - 1 DAY)
+                                       ) T
+                              ) A
+                         WHERE A.user_uuid = #{user_uuid}
+                           AND A.game_mode = c.game_mode
+                           AND A.game_level = c.game_level), 'Y', 'N') AS reward_rank_yn,
+               COALESCE((SELECT A.game_rank
+                         FROM(
+                                 SELECT T.* , ROW_NUMBER() OVER (ORDER BY result_score DESC) AS game_rank
+                                 FROM (
+                                          SELECT
+                                              a.start_seq, a.game_mode, a.game_level,
+                                              a.user_uuid, aa.user_nickname, a.result_score AS result_score,
+                                              ROW_NUMBER() OVER (PARTITION BY user_uuid ORDER BY result_score DESC) AS RankNo
+                                          FROM game_result_data a
+                                                   LEFT JOIN user_data aa ON a.user_uuid = aa.user_uuid
+                                          WHERE a.game_mode = c.game_mode
+                                            AND a.game_level = c.game_level
+                                            AND aa.use_yn = 'Y'
+                                            AND aa.user_position = 'normal'
+                                            AND a.game_result IN ('clear', 'Failed')
+                                            and
+                                              date_format(ins_date,'%Y-%m-%d')
+                                                  BETWEEN
+                                                      (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) - 7 ))
+                                                  AND
+                                                      (SELECT ADDDATE(CURDATE(), - WEEKDAY(CURDATE()) - 1 ))
+                                          ORDER by result_score DESC
+                                      ) T
+                                 WHERE RankNo = 1
+                             ) A
+                         WHERE A.user_uuid = #{user_uuid}), 0) AS user_game_rank
+        FROM game_mode_data c;
+    </select>
+-->
+
+</mapper>

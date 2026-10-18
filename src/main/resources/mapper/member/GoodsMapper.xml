@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goall.zombie_defence.mapper.GoodsMapper">
+
+    <insert id="insUseKeyLog" parameterType="java.util.HashMap">
+        INSERT INTO use_key_log
+            (
+             user_uuid,
+             start_seq,
+             game_mode,
+             game_level,
+             use_key_quantity,
+             before_use_key_quantity,
+             after_use_key_quantity,
+             use_key_log_note,
+             ins_date,
+             ins_ip,
+             ins_machine
+             )
+        VALUES
+            (
+            #{user_uuid},
+            #{start_seq},
+            #{game_mode},
+            #{game_level},
+            #{use_key_quantity},
+            #{before_use_key_quantity},
+            #{after_use_key_quantity},
+            #{use_key_log_note},
+            NOW(),
+            #{ins_ip},
+            #{ins_machine}
+             )
+    </insert>
+
+    <insert id="insChargeKeyLog" parameterType="java.util.HashMap">
+        INSERT INTO charge_key_log
+            (
+             user_uuid,
+             charge_key_unique_idx,
+             charge_reason,
+             charge_key_quantity,
+             before_charge_key_quantity,
+             after_charge_key_quantity,
+             ins_date,
+             ins_ip,
+             ins_machine
+             )
+        VALUES
+            (
+            #{user_uuid},
+            #{charge_key_unique_idx},
+            #{charge_reason},
+            #{charge_key_quantity},
+            #{before_charge_key_quantity},
+            #{after_charge_key_quantity},
+            NOW(),
+            #{ins_ip},
+            #{ins_machine}
+             )
+    </insert>
+
+    <update id="uptUserKey" parameterType="java.util.HashMap">
+        UPDATE user_data
+        SET
+            user_key = #{user_key},
+        <if test="reason_auto != null and reason_auto != ''">
+            user_key_remain_time = #{user_key_remain_time},
+            user_key_last_charge_time = NOW(),
+        </if>
+            user_update_date = NOW()
+        WHERE user_uuid = #{user_uuid}
+    </update>
+
+    <insert id="insUseRubyLog" parameterType="java.util.HashMap">
+        INSERT INTO use_ruby_log
+        (
+            user_uuid,
+            use_ruby_unique_idx,
+            advertisement_yn,
+            use_ruby_quantity,
+            before_use_ruby_quantity,
+            after_use_ruby_quantity,
+            use_ruby_log_note,
+            ins_date,
+            ins_ip,
+            ins_machine
+        )
+        VALUES
+            (
+                #{user_uuid},
+                #{use_ruby_unique_idx},
+                #{advertisement_yn},
+                #{use_ruby_quantity},
+                #{before_use_ruby_quantity},
+                #{after_use_ruby_quantity},
+                #{use_ruby_log_note},
+                NOW(),
+                #{ins_ip},
+                #{ins_machine}
+            )
+    </insert>
+
+    <update id="uptUserRuby" parameterType="java.util.HashMap">
+        UPDATE user_data
+        SET
+            user_ruby = #{user_ruby},
+            user_update_date = NOW()
+        WHERE user_uuid = #{user_uuid}
+    </update>
+
+    <update id="uptUserGold" parameterType="java.util.HashMap">
+        UPDATE user_data
+        SET
+        user_gold = #{user_gold},
+        user_update_date = NOW()
+        WHERE user_uuid = #{user_uuid}
+    </update>
+
+    <update id="uptUserBp" parameterType="java.util.HashMap">
+        UPDATE user_data
+        SET
+            user_bp = #{user_bp},
+            user_update_date = NOW()
+        WHERE user_uuid = #{user_uuid}
+    </update>
+
+    <insert id="insUseGoldLog" parameterType="java.util.HashMap">
+        INSERT INTO use_gold_log
+        (
+            user_uuid,
+            use_gold_unique_idx,
+            use_gold_quantity,
+            advertisement_yn,
+            before_use_gold_quantity,
+            after_use_gold_quantity,
+            use_gold_log_note,
+            ins_date,
+            ins_ip,
+            ins_machine
+        )
+        VALUES
+            (
+                #{user_uuid},
+                #{use_gold_unique_idx},
+                #{use_gold_quantity},
+                #{advertisement_yn},
+                #{before_use_gold_quantity},
+                #{after_use_gold_quantity},
+                #{use_gold_log_note},
+                NOW(),
+                #{ins_ip},
+                #{ins_machine}
+            )
+    </insert>
+
+    <insert id="insChargeGoldLog" parameterType="java.util.HashMap">
+        INSERT INTO charge_gold_log
+        (
+            user_uuid,
+            charge_gold_unique_idx,
+            charge_reason,
+            charge_gold_quantity,
+            before_charge_gold_quantity,
+            after_charge_gold_quantity,
+            ins_date,
+            ins_ip,
+            ins_machine
+        )
+        VALUES
+        (
+            #{user_uuid},
+            #{charge_gold_unique_idx},
+            #{charge_reason},
+            #{charge_gold_quantity},
+            #{before_charge_gold_quantity},
+            #{after_charge_gold_quantity},
+            NOW(),
+            #{ins_ip},
+            #{ins_machine}
+        )
+    </insert>
+
+    <insert id="insChargeRubyLog" parameterType="java.util.HashMap">
+        INSERT INTO charge_ruby_log
+        (
+            user_uuid,
+            charge_ruby_unique_idx,
+            charge_reason,
+            charge_ruby_quantity,
+            before_charge_ruby_quantity,
+            after_charge_ruby_quantity,
+            ins_date,
+            ins_ip,
+            ins_machine
+        )
+        VALUES
+            (
+                #{user_uuid},
+                #{charge_ruby_unique_idx},
+                #{charge_reason},
+                #{charge_ruby_quantity},
+                #{before_charge_ruby_quantity},
+                #{after_charge_ruby_quantity},
+                NOW(),
+                #{ins_ip},
+                #{ins_machine}
+            )
+    </insert>
+
+    <insert id="insChargeBpLog" parameterType="java.util.HashMap">
+        INSERT INTO charge_bp_log
+        (
+            user_uuid,
+            charge_bp_unique_idx,
+            charge_reason,
+            charge_bp_quantity,
+            before_charge_bp_quantity,
+            after_charge_bp_quantity,
+            ins_date,
+            ins_ip,
+            ins_machine
+        )
+        VALUES
+        (
+            #{user_uuid},
+            #{charge_bp_unique_idx},
+            #{charge_reason},
+            #{charge_bp_quantity},
+            #{before_charge_bp_quantity},
+            #{after_charge_bp_quantity},
+            NOW(),
+            #{ins_ip},
+            #{ins_machine}
+        )
+    </insert>
+
+    <insert id="insUseBpLog" parameterType="java.util.HashMap">
+        INSERT INTO use_bp_log
+        (user_uuid,
+         use_bp_unique_idx,
+         advertisement_yn,
+         use_bp_quantity,
+         before_use_bp_quantity,
+         after_use_bp_quantity,
+         use_bp_log_note,
+         ins_date,
+         ins_ip,
+         ins_machine)
+        VALUES (#{user_uuid},
+                #{use_bp_unique_idx},
+                #{advertisement_yn},
+                #{use_bp_quantity},
+                #{before_use_bp_quantity},
+                #{after_use_bp_quantity},
+                #{use_bp_log_note},
+                NOW(),
+                #{ins_ip},
+                #{ins_machine})
+    </insert>
+
+</mapper>
